@@ -489,41 +489,21 @@
   <!-- Sync Bar -->
   <div class="sync-bar" id="syncBar">
     <div class="sync-dot" id="syncDot"></div>
-    <div class="sync-status" id="syncStatus"><b>尚未設定同步</b> — 資料僅存在本機</div>
+    <div class="sync-status" id="syncStatus"></div>
     <button class="sync-now-btn" id="syncNowBtn" onclick="syncToSheets()" style="display:none">立即同步</button>
-    <button class="sync-setup-btn" onclick="openSetupModal()">⚙ 設定 Google 試算表</button>
+    <button class="sync-setup-btn" onclick="openSetupModal()">👤 設定員工名稱</button>
   </div>
 
-  <!-- Setup Modal -->
+  <!-- Name Modal -->
   <div class="modal-overlay hidden" id="modalOverlay">
     <div class="modal">
-      <h2>🔗 連結 Google 試算表</h2>
-      <p class="modal-sub">只需設定一次，之後每次記帳都會自動同步到你的 Google 試算表。</p>
-
-      <div class="step">
-        <div class="step-num">步驟 1 — 建立 Apps Script</div>
-        <p>開啟 Google 試算表 → 選單「擴充功能」→「Apps Script」→ 清空內容，貼入以下程式碼：</p>
-        <button class="copy-btn" onclick="copyGasCode()">複製程式碼</button>
-        <div class="gas-code" id="gasCode"></div>
-      </div>
-
-      <div class="step">
-        <div class="step-num">步驟 2 — 部署</div>
-        <p>點右上角「部署」→「新增部署」→ 類型選「網路應用程式」<br>
-        執行身份：<b>我</b>　誰可以存取：<b>所有人</b> → 授權 → 複製網址</p>
-      </div>
-
-      <div class="step">
-        <div class="step-num">步驟 3 — 貼入網址</div>
-        <span class="modal-label">Apps Script 網路應用程式網址</span>
-        <input class="modal-url-input" id="gasUrl" placeholder="https://script.google.com/macros/s/...exec">
-        <span class="modal-label">記帳人員名稱（方便識別誰記的）</span>
-        <input class="modal-author-input" id="authorName" placeholder="例如：小明、收銀台1">
-      </div>
-
+      <h2>👤 設定員工名稱</h2>
+      <p class="modal-sub">設定後，Google 試算表會顯示是誰記的帳。只需設定一次。</p>
+      <span class="modal-label">你的名稱</span>
+      <input class="modal-author-input" id="authorName" placeholder="例如：小明、收銀台1、阿華">
       <div class="modal-btns">
         <button class="modal-cancel" onclick="closeSetupModal()">取消</button>
-        <button class="modal-save" onclick="saveSettings()">儲存並測試連線</button>
+        <button class="modal-save" onclick="saveSettings()">儲存</button>
       </div>
     </div>
   </div>
@@ -739,12 +719,14 @@ const GAS_CODE = `function doPost(e) {
   }
 }`;
 
+const HARDCODED_GAS_URL = 'https://script.google.com/macros/s/AKfycbxQFxN62WUqmSogbkPqmuZua7h8_3_Xv7bevqxYFNFJpIWJxkxC0ijB5sC90P5prs2u/exec';
+
 let currentDate = todayStr();
 let currentMonthView = currentDate.slice(0,7);
 let currentType = 'income';
 let selectedCat = '';
 let data = {};
-let gasUrl = '';
+let gasUrl = HARDCODED_GAS_URL;
 let authorName = '';
 let syncTimer = null;
 
@@ -754,7 +736,7 @@ function todayStr() {
 
 function loadStorage() {
   try { data = JSON.parse(localStorage.getItem('carwash_data') || '{}'); } catch(e) { data = {}; }
-  gasUrl = localStorage.getItem('carwash_gasUrl') || '';
+  gasUrl = HARDCODED_GAS_URL;
   authorName = localStorage.getItem('carwash_author') || '';
 }
 function saveStorage() {
@@ -777,7 +759,6 @@ renderCatChips();
 renderDay();
 renderMonthStats();
 initSyncBar();
-document.getElementById('gasCode').textContent = GAS_CODE;
 
 // ─── Date Nav ────────────────────────────────────────────
 function changeDate(delta) {
@@ -904,16 +885,10 @@ function initSyncBar() {
   const dot = document.getElementById('syncDot');
   const status = document.getElementById('syncStatus');
   const nowBtn = document.getElementById('syncNowBtn');
-  if (gasUrl) {
-    dot.className = 'sync-dot ok';
-    const who = authorName ? `（${authorName}）` : '';
-    status.innerHTML = `<b>已連結 Google 試算表</b>${who} — 記帳後自動同步`;
-    nowBtn.style.display = 'inline-block';
-  } else {
-    dot.className = 'sync-dot';
-    status.innerHTML = `<b>尚未設定同步</b> — 資料僅存在本機`;
-    nowBtn.style.display = 'none';
-  }
+  dot.className = 'sync-dot ok';
+  const who = authorName ? `<b>${authorName}</b>` : '<b>未設定名稱</b>';
+  status.innerHTML = `${who} — 記帳後自動同步至 Google 試算表`;
+  nowBtn.style.display = 'inline-block';
 }
 
 function setSyncState(state, msg) {
@@ -955,7 +930,6 @@ async function syncToSheets(showAlert) {
 }
 
 function openSetupModal() {
-  document.getElementById('gasUrl').value = gasUrl;
   document.getElementById('authorName').value = authorName;
   document.getElementById('modalOverlay').classList.remove('hidden');
 }
@@ -965,22 +939,16 @@ function closeSetupModal() {
 function copyGasCode() {
   navigator.clipboard.writeText(GAS_CODE).then(() => {
     const btn = document.querySelector('.copy-btn');
-    btn.textContent = '✓ 已複製'; setTimeout(()=>btn.textContent='複製程式碼', 2000);
+    if (btn) { btn.textContent = '✓ 已複製'; setTimeout(()=>btn.textContent='複製程式碼', 2000); }
   });
 }
 async function saveSettings() {
-  const url = document.getElementById('gasUrl').value.trim();
   const author = document.getElementById('authorName').value.trim();
-  if (!url || !url.includes('script.google.com')) {
-    alert('請貼入正確的 Apps Script 網址'); return;
-  }
-  gasUrl = url;
+  if (!author) { alert('請輸入你的名稱'); return; }
   authorName = author;
-  localStorage.setItem('carwash_gasUrl', gasUrl);
   localStorage.setItem('carwash_author', authorName);
   closeSetupModal();
   initSyncBar();
-  await syncToSheets(true);
 }
 
 // ─── Render day list ─────────────────────────────────────
