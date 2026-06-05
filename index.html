@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>洗車場記帳系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #0099cc;
+    --green: #00e676;
+    --red: #ff4560;
+    --yellow: #ffd60a;
+    --text: #e8f4fd;
+    --muted: #5a7a9a;
+    --card-shadow: 0 4px 24px rgba(0,212,255,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  /* Background grid effect */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 20px rgba(0,212,255,0.3);
+  }
+  .logo-text h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+  .logo-text p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .date-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+  }
+
+  /* Date Nav */
+  .date-nav {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .date-nav button {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .date-nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .date-nav input[type="date"] {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .date-nav .today-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0 16px;
+    width: auto;
+    font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+
+  /* Stats row */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent-color, var(--accent));
+  }
+  .stat-card .label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .stat-card .value {
+    font-family: 'DM Mono', monospace;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--accent-color, var(--text));
+  }
+  .stat-card .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* Main layout */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+  }
+
+  /* Panel */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface2);
+  }
+  .panel-title {
+    font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-title span { font-size: 16px; }
+  .panel-body { padding: 20px; }
+
+  /* Service buttons */
+  .service-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .service-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    color: var(--text);
+  }
+  .service-btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.05); }
+  .service-btn.selected { border-color: var(--accent); background: rgba(0,212,255,0.1); }
+  .service-btn .s-name { font-size: 13px; font-weight: 500; }
+  .service-btn .s-price { font-family: 'DM Mono', monospace; font-size: 15px; color: var(--accent); margin-top: 4px; }
+
+  /* Form */
+  .form-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .form-group { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 12px; color: var(--muted); }
+  .form-group input, .form-group select, .form-group textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--accent);
+  }
+  .form-group textarea { resize: vertical; min-height: 60px; }
+
+  /* Type tabs */
+  .type-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .type-tab {
+    flex: 1; padding: 10px;
+    border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted);
+    cursor: pointer; font-size: 13px; font-weight: 500;
+    text-align: center; transition: all 0.2s;
+  }
+  .type-tab.active[data-type="income"] { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.08); }
+  .type-tab.active[data-type="expense"] { border-color: var(--red); color: var(--red); background: rgba(255,69,96,0.08); }
+
+  /* Submit btn */
+  .submit-btn {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 10px;
+    color: var(--bg); font-size: 15px; font-weight: 700;
+    cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(0,212,255,0.2);
+    margin-top: 4px;
+  }
+  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,212,255,0.35); }
+
+  /* Transaction list */
+  .tx-list { display: flex; flex-direction: column; gap: 8px; }
+  .tx-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.2s;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .tx-item:hover { border-color: var(--border); background: #1e2d45; }
+  .tx-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .tx-info { flex: 1; min-width: 0; }
+  .tx-name { font-size: 14px; font-weight: 500; }
+  .tx-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .tx-amount {
+    font-family: 'DM Mono', monospace;
+    font-size: 15px; font-weight: 500;
+    flex-shrink: 0;
+  }
+  .tx-del {
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; font-size: 16px; padding: 4px;
+    border-radius: 4px; transition: color 0.2s;
+  }
+  .tx-del:hover { color: var(--red); }
+
+  .empty-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--muted); font-size: 14px;
+  }
+  .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
+
+  /* Monthly summary tab */
+  .tab-bar {
+    display: flex; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+  }
+  .tab {
+    padding: 10px 18px; font-size: 13px; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    color: var(--muted); transition: all 0.2s;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Monthly view */
+  .month-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+  }
+  .month-bar span { font-size: 15px; font-weight: 600; }
+  .month-bar .nav { display: flex; gap: 6px; align-items: center; }
+  .month-bar .nav button {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); width: 30px; height: 30px; border-radius: 6px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .month-bar .nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .export-btns { display: flex; gap: 8px; }
+  .export-btn {
+    padding: 6px 14px; border-radius: 7px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1px solid; transition: all 0.2s;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .export-btn.csv {
+    border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.08);
+  }
+  .export-btn.csv:hover { background: rgba(0,230,118,0.18); }
+  .export-btn.xlsx {
+    border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.08);
+  }
+  .export-btn.xlsx:hover { background: rgba(0,212,255,0.18); }
+  .export-btn.detail {
+    border-color: var(--yellow); color: var(--yellow); background: rgba(255,214,10,0.08);
+  }
+  .export-btn.detail:hover { background: rgba(255,214,10,0.18); }
+
+  .month-summary {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; margin-bottom: 16px;
+  }
+  .ms-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+    text-align: center;
+  }
+  .ms-card .ms-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .ms-card .ms-val { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 500; }
+
+  .daily-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .daily-table th {
+    padding: 8px 10px; text-align: left;
+    color: var(--muted); font-weight: 500;
+    border-bottom: 1px solid var(--border);
+  }
+  .daily-table td {
+    padding: 10px 10px;
+    border-bottom: 1px solid rgba(30,45,69,0.5);
+  }
+  .daily-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .daily-table tr.today-row td { background: rgba(0,212,255,0.04); }
+
+  /* Expense categories */
+  .cat-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .cat-chip {
+    padding: 5px 12px; border-radius: 20px; font-size: 12px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+  }
+  .cat-chip.active { border-color: var(--yellow); color: var(--yellow); background: rgba(255,214,10,0.08); }
+
+  .hidden { display: none !important; }
+
+  /* Sync bar */
+  .sync-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 16px; margin-bottom: 20px;
+    font-size: 13px;
+  }
+  .sync-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: var(--muted);
+  }
+  .sync-dot.ok { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .sync-dot.syncing { background: var(--yellow); animation: pulse 1s infinite; }
+  .sync-dot.err { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .sync-status { flex: 1; color: var(--muted); }
+  .sync-status b { color: var(--text); }
+  .sync-setup-btn {
+    background: none; border: 1px solid var(--accent); color: var(--accent);
+    padding: 5px 12px; border-radius: 6px; font-size: 12px;
+    cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+  }
+  .sync-setup-btn:hover { background: rgba(0,212,255,0.1); }
+  .sync-now-btn {
+    background: none; border: 1px solid var(--green); color: var(--green);
+    padding: 5px 12px; border-radius: 6px; font-size: 12px;
+    cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+  }
+  .sync-now-btn:hover { background: rgba(0,230,118,0.1); }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 100; display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px; width: 520px; max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal h2 { font-size: 18px; margin-bottom: 6px; }
+  .modal .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .modal .step {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+  }
+  .modal .step-num {
+    font-size: 11px; color: var(--accent); font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+  }
+  .modal .step p { font-size: 13px; line-height: 1.6; }
+  .modal .step code {
+    display: block; background: #0a0f1e; border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 12px; font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--accent); margin-top: 8px; word-break: break-all;
+  }
+  .modal-url-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--accent);
+    color: var(--text); padding: 12px 14px; border-radius: 8px;
+    font-size: 13px; font-family: 'DM Mono', monospace; margin: 14px 0 4px;
+  }
+  .modal-url-input:focus { outline: none; }
+  .modal-author-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 14px; border-radius: 8px;
+    font-size: 13px; font-family: 'Noto Sans TC', sans-serif; margin: 8px 0 4px;
+  }
+  .modal-author-input:focus { outline: none; border-color: var(--accent); }
+  .modal-label { font-size: 12px; color: var(--muted); margin-top: 12px; display: block; }
+  .modal-btns { display: flex; gap: 10px; margin-top: 18px; }
+  .modal-save {
+    flex: 1; padding: 12px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 9px; color: var(--bg); font-size: 14px; font-weight: 700;
+    cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+  }
+  .modal-cancel {
+    padding: 12px 20px; background: none; border: 1px solid var(--border);
+    color: var(--muted); border-radius: 9px; font-size: 14px; cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .modal-cancel:hover { border-color: var(--text); color: var(--text); }
+  .gas-code {
+    background: #0a0f1e; border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px; font-family: 'DM Mono', monospace; font-size: 10px;
+    color: #7ecfff; white-space: pre-wrap; margin-top: 8px; max-height: 140px;
+    overflow-y: auto; line-height: 1.5;
+  }
+  .copy-btn {
+    background: none; border: 1px solid var(--border); color: var(--muted);
+    padding: 4px 10px; border-radius: 5px; font-size: 11px; cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif; float: right; margin-top: -2px;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  @media (max-width: 800px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🚗</div>
+      <div class="logo-text">
+        <h1>洗車場記帳系統</h1>
+        <p>Car Wash Daily Accounting</p>
+      </div>
+    </div>
+    <div class="date-badge" id="headerDate">載入中...</div>
+  </header>
+
+  <!-- Date Nav -->
+  <div class="date-nav">
+    <button onclick="changeDate(-1)">‹</button>
+    <input type="date" id="dateInput" onchange="loadDay()">
+    <button onclick="changeDate(1)">›</button>
+    <button class="today-btn" onclick="goToday()">今天</button>
+  </div>
+
+  <!-- Sync Bar -->
+  <div class="sync-bar" id="syncBar">
+    <div class="sync-dot" id="syncDot"></div>
+    <div class="sync-status" id="syncStatus"><b>尚未設定同步</b> — 資料僅存在本機</div>
+    <button class="sync-now-btn" id="syncNowBtn" onclick="syncToSheets()" style="display:none">立即同步</button>
+    <button class="sync-setup-btn" onclick="openSetupModal()">⚙ 設定 Google 試算表</button>
+  </div>
+
+  <!-- Setup Modal -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal">
+      <h2>🔗 連結 Google 試算表</h2>
+      <p class="modal-sub">只需設定一次，之後每次記帳都會自動同步到你的 Google 試算表。</p>
+
+      <div class="step">
+        <div class="step-num">步驟 1 — 建立 Apps Script</div>
+        <p>開啟 Google 試算表 → 選單「擴充功能」→「Apps Script」→ 清空內容，貼入以下程式碼：</p>
+        <button class="copy-btn" onclick="copyGasCode()">複製程式碼</button>
+        <div class="gas-code" id="gasCode"></div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">步驟 2 — 部署</div>
+        <p>點右上角「部署」→「新增部署」→ 類型選「網路應用程式」<br>
+        執行身份：<b>我</b>　誰可以存取：<b>所有人</b> → 授權 → 複製網址</p>
+      </div>
+
+      <div class="step">
+        <div class="step-num">步驟 3 — 貼入網址</div>
+        <span class="modal-label">Apps Script 網路應用程式網址</span>
+        <input class="modal-url-input" id="gasUrl" placeholder="https://script.google.com/macros/s/...exec">
+        <span class="modal-label">記帳人員名稱（方便識別誰記的）</span>
+        <input class="modal-author-input" id="authorName" placeholder="例如：小明、收銀台1">
+      </div>
+
+      <div class="modal-btns">
+        <button class="modal-cancel" onclick="closeSetupModal()">取消</button>
+        <button class="modal-save" onclick="saveSettings()">儲存並測試連線</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card" style="--accent-color: var(--green)">
+      <div class="label">今日收入</div>
+      <div class="value" id="statIncome">$0</div>
+      <div class="sub" id="statIncomeCnt">0 筆交易</div>
+    </div>
+    <div class="stat-card" style="--accent-color: var(--red)">
+      <div class="label">今日支出</div>
+      <div class="value" id="statExpense">$0</div>
+      <div class="sub" id="statExpenseCnt">0 筆支出</div>
+    </div>
+    <div class="stat-card" style="--accent-color: var(--accent)">
+      <div class="label">今日淨利</div>
+      <div class="value" id="statNet">$0</div>
+      <div class="sub" id="statNetSub">收入 - 支出</div>
+    </div>
+    <div class="stat-card" style="--accent-color: var(--yellow)">
+      <div class="label">本月累計淨利</div>
+      <div class="value" id="statMonth">$0</div>
+      <div class="sub" id="statMonthSub">本月至今</div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-grid">
+    <!-- Left: transactions -->
+    <div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><span>📋</span> 交易記錄</div>
+          <div class="tab-bar" style="border:none;margin:0">
+            <div class="tab active" onclick="switchView('daily',this)">今日</div>
+            <div class="tab" onclick="switchView('monthly',this)">月報表</div>
+          </div>
+        </div>
+        <div class="panel-body">
+
+          <!-- Daily view -->
+          <div id="dailyView">
+            <div class="tx-list" id="txList">
+              <div class="empty-state"><div class="icon">💧</div>今日尚無記錄<br>請在右側新增交易</div>
+            </div>
+          </div>
+
+          <!-- Monthly view -->
+          <div id="monthlyView" class="hidden">
+            <div class="month-bar">
+              <span id="monthLabel"></span>
+              <div class="nav">
+                <button onclick="changeMonth(-1)">‹</button>
+                <button onclick="changeMonth(1)">›</button>
+                <div class="export-btns" style="margin-left:8px">
+                  <button class="export-btn csv" onclick="exportCSV()">📄 匯出 CSV</button>
+                  <button class="export-btn xlsx" onclick="exportXLSX()">📊 匯出 Excel</button>
+                  <button class="export-btn detail" onclick="exportDetailCSV()">🗂 明細匯出</button>
+                </div>
+              </div>
+            </div>
+            <div class="month-summary">
+              <div class="ms-card">
+                <div class="ms-label">月收入</div>
+                <div class="ms-val" id="mIncome" style="color:var(--green)">$0</div>
+              </div>
+              <div class="ms-card">
+                <div class="ms-label">月支出</div>
+                <div class="ms-val" id="mExpense" style="color:var(--red)">$0</div>
+              </div>
+              <div class="ms-card">
+                <div class="ms-label">月淨利</div>
+                <div class="ms-val" id="mNet" style="color:var(--accent)">$0</div>
+              </div>
+            </div>
+            <table class="daily-table">
+              <thead>
+                <tr>
+                  <th>日期</th>
+                  <th>收入</th>
+                  <th>支出</th>
+                  <th>淨利</th>
+                </tr>
+              </thead>
+              <tbody id="monthTableBody"></tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: add form -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <!-- Quick add income -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><span>➕</span> 新增記錄</div>
+        </div>
+        <div class="panel-body">
+          <div class="type-tabs">
+            <div class="type-tab active" data-type="income" onclick="setType('income',this)">💰 收入</div>
+            <div class="type-tab" data-type="expense" onclick="setType('expense',this)">💸 支出</div>
+          </div>
+
+          <!-- Income: service presets -->
+          <div id="incomeSection">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px">快速選擇服務</div>
+            <div class="service-grid" id="serviceGrid"></div>
+          </div>
+
+          <!-- Expense: category -->
+          <div id="expenseSection" class="hidden">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px">支出類別</div>
+            <div class="cat-chips" id="catChips"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>項目名稱</label>
+              <input type="text" id="txName" placeholder="e.g. 一般洗車">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>金額 (NT$)</label>
+              <input type="number" id="txAmount" placeholder="0" min="0">
+            </div>
+            <div class="form-group">
+              <label>數量</label>
+              <input type="number" id="txQty" value="1" min="1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>備註 (選填)</label>
+              <input type="text" id="txNote" placeholder="車牌、備忘...">
+            </div>
+          </div>
+          <button class="submit-btn" onclick="addTransaction()">新增交易</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Data ───────────────────────────────────────────────
+const SERVICES = [
+  { name: '一般洗車', price: 250 },
+  { name: '精緻洗車', price: 450 },
+  { name: '打蠟服務', price: 800 },
+  { name: '室內清潔', price: 600 },
+  { name: '引擎清洗', price: 1200 },
+  { name: '全車美容', price: 2500 },
+];
+const EXPENSE_CATS = ['水電費','薪資','清潔耗材','設備維修','油料','租金','雜費'];
+
+const GAS_CODE = `function doPost(e) {
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet();
+    const d = JSON.parse(e.postData.contents);
+    const { date, transactions, author } = d;
+
+    // 每日工作表
+    let tab = sheet.getSheetByName(date);
+    if (!tab) {
+      tab = sheet.insertSheet(date);
+      tab.appendRow(['時間','記帳人','類型','項目','單價','數量','小計','類別','備註']);
+      tab.getRange(1,1,1,9).setFontWeight('bold')
+        .setBackground('#1a73e8').setFontColor('#ffffff');
+    } else {
+      const lr = tab.getLastRow();
+      if (lr > 1) tab.deleteRows(2, lr - 1);
+    }
+    transactions.forEach(t => {
+      tab.appendRow([t.time, author||'', t.type==='income'?'收入':'支出',
+        t.name, t.amount, t.qty, t.total, t.cat||'', t.note||'']);
+    });
+
+    // 月總覽工作表
+    let ov = sheet.getSheetByName('月總覽');
+    if (!ov) {
+      ov = sheet.insertSheet('月總覽');
+      ov.appendRow(['日期','收入','支出','淨利','筆數','最後更新']);
+      ov.getRange(1,1,1,6).setFontWeight('bold')
+        .setBackground('#34a853').setFontColor('#ffffff');
+      sheet.setActiveSheet(ov);
+      sheet.moveActiveSheet(1);
+    }
+    const inc = transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.total,0);
+    const exp = transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.total,0);
+    const now = Utilities.formatDate(new Date(),'Asia/Taipei','HH:mm');
+    const rows = ov.getDataRange().getValues();
+    let found = false;
+    for (let i=1;i<rows.length;i++) {
+      if (rows[i][0]===date) {
+        ov.getRange(i+1,1,1,6).setValues([[date,inc,exp,inc-exp,transactions.length,now]]);
+        found=true; break;
+      }
+    }
+    if (!found) ov.appendRow([date,inc,exp,inc-exp,transactions.length,now]);
+
+    return ContentService.createTextOutput(JSON.stringify({status:'ok'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status:'error',message:err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+let currentDate = todayStr();
+let currentMonthView = currentDate.slice(0,7);
+let currentType = 'income';
+let selectedCat = '';
+let data = {};
+let gasUrl = '';
+let authorName = '';
+let syncTimer = null;
+
+function todayStr() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function loadStorage() {
+  try { data = JSON.parse(localStorage.getItem('carwash_data') || '{}'); } catch(e) { data = {}; }
+  gasUrl = localStorage.getItem('carwash_gasUrl') || '';
+  authorName = localStorage.getItem('carwash_author') || '';
+}
+function saveStorage() {
+  localStorage.setItem('carwash_data', JSON.stringify(data));
+}
+
+function getDayData(d) {
+  if (!data[d]) data[d] = [];
+  return data[d];
+}
+
+// ─── Init ────────────────────────────────────────────────
+loadStorage();
+
+// Date input
+document.getElementById('dateInput').value = currentDate;
+renderHeaderDate();
+renderServiceGrid();
+renderCatChips();
+renderDay();
+renderMonthStats();
+initSyncBar();
+document.getElementById('gasCode').textContent = GAS_CODE;
+
+// ─── Date Nav ────────────────────────────────────────────
+function changeDate(delta) {
+  const d = new Date(currentDate + 'T00:00:00');
+  d.setDate(d.getDate() + delta);
+  currentDate = d.toISOString().slice(0,10);
+  document.getElementById('dateInput').value = currentDate;
+  loadDay();
+}
+function loadDay() {
+  currentDate = document.getElementById('dateInput').value;
+  renderHeaderDate();
+  renderDay();
+  renderStats();
+  renderMonthStats();
+}
+function goToday() {
+  currentDate = todayStr();
+  document.getElementById('dateInput').value = currentDate;
+  renderHeaderDate();
+  renderDay();
+  renderStats();
+  renderMonthStats();
+}
+
+function renderHeaderDate() {
+  const d = new Date(currentDate + 'T00:00:00');
+  const opts = { year:'numeric', month:'long', day:'numeric', weekday:'short' };
+  document.getElementById('headerDate').textContent = d.toLocaleDateString('zh-TW', opts);
+}
+
+// ─── Services ────────────────────────────────────────────
+function renderServiceGrid() {
+  const g = document.getElementById('serviceGrid');
+  g.innerHTML = SERVICES.map((s,i) => `
+    <div class="service-btn" onclick="selectService(${i})">
+      <div class="s-name">${s.name}</div>
+      <div class="s-price">NT$${s.price}</div>
+    </div>
+  `).join('');
+}
+function selectService(i) {
+  document.querySelectorAll('.service-btn').forEach((b,j) => b.classList.toggle('selected', j===i));
+  document.getElementById('txName').value = SERVICES[i].name;
+  document.getElementById('txAmount').value = SERVICES[i].price;
+}
+
+function renderCatChips() {
+  document.getElementById('catChips').innerHTML = EXPENSE_CATS.map(c => `
+    <div class="cat-chip" onclick="selectCat('${c}',this)">${c}</div>
+  `).join('');
+}
+function selectCat(cat, el) {
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  selectedCat = cat;
+  document.getElementById('txName').value = cat;
+}
+
+// ─── Type toggle ────────────────────────────────────────
+function setType(type, el) {
+  currentType = type;
+  document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('incomeSection').classList.toggle('hidden', type !== 'income');
+  document.getElementById('expenseSection').classList.toggle('hidden', type !== 'expense');
+  document.getElementById('txName').value = '';
+  document.getElementById('txAmount').value = '';
+  document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+  selectedCat = '';
+}
+
+// ─── Add transaction ────────────────────────────────────
+function addTransaction() {
+  const name = document.getElementById('txName').value.trim();
+  const amount = parseFloat(document.getElementById('txAmount').value);
+  const qty = parseInt(document.getElementById('txQty').value) || 1;
+  const note = document.getElementById('txNote').value.trim();
+
+  if (!name) { alert('請填寫項目名稱'); return; }
+  if (!amount || amount <= 0) { alert('請填寫正確金額'); return; }
+
+  const tx = {
+    id: Date.now(),
+    type: currentType,
+    name,
+    amount,
+    qty,
+    total: amount * qty,
+    note,
+    cat: currentType === 'expense' ? selectedCat : '',
+    time: new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'}),
+  };
+
+  getDayData(currentDate).push(tx);
+  saveStorage();
+  renderDay();
+  renderStats();
+  renderMonthStats();
+  scheduleSync();
+
+  // Reset
+  document.getElementById('txName').value = '';
+  document.getElementById('txAmount').value = '';
+  document.getElementById('txQty').value = '1';
+  document.getElementById('txNote').value = '';
+  document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+}
+
+// ─── Delete ──────────────────────────────────────────────
+function deleteTransaction(id) {
+  data[currentDate] = (data[currentDate] || []).filter(t => t.id !== id);
+  saveStorage();
+  renderDay();
+  renderStats();
+  renderMonthStats();
+  scheduleSync();
+}
+
+// ─── Google Sheets Sync ──────────────────────────────────
+function initSyncBar() {
+  const dot = document.getElementById('syncDot');
+  const status = document.getElementById('syncStatus');
+  const nowBtn = document.getElementById('syncNowBtn');
+  if (gasUrl) {
+    dot.className = 'sync-dot ok';
+    const who = authorName ? `（${authorName}）` : '';
+    status.innerHTML = `<b>已連結 Google 試算表</b>${who} — 記帳後自動同步`;
+    nowBtn.style.display = 'inline-block';
+  } else {
+    dot.className = 'sync-dot';
+    status.innerHTML = `<b>尚未設定同步</b> — 資料僅存在本機`;
+    nowBtn.style.display = 'none';
+  }
+}
+
+function setSyncState(state, msg) {
+  const dot = document.getElementById('syncDot');
+  const status = document.getElementById('syncStatus');
+  dot.className = 'sync-dot ' + state;
+  status.innerHTML = msg;
+}
+
+function scheduleSync() {
+  if (!gasUrl) return;
+  clearTimeout(syncTimer);
+  setSyncState('syncing', '⏳ 準備同步...');
+  syncTimer = setTimeout(() => syncToSheets(), 1500);
+}
+
+async function syncToSheets(showAlert) {
+  if (!gasUrl) { openSetupModal(); return; }
+  const txs = getDayData(currentDate);
+  setSyncState('syncing', '🔄 同步中...');
+  try {
+    const resp = await fetch(gasUrl, {
+      method: 'POST',
+      body: JSON.stringify({ date: currentDate, transactions: txs, author: authorName }),
+    });
+    const json = await resp.json();
+    if (json.status === 'ok') {
+      const t = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit'});
+      const who = authorName ? `（${authorName}）` : '';
+      setSyncState('ok', `<b>✓ 同步成功</b>${who} — 最後同步 ${t}`);
+      if (showAlert) alert('✅ 同步成功！Google 試算表已更新。');
+    } else {
+      throw new Error(json.message || '同步失敗');
+    }
+  } catch(err) {
+    setSyncState('err', `<b>⚠ 同步失敗</b> — ${err.message.slice(0,40)}`);
+    if (showAlert) alert('❌ 同步失敗：' + err.message);
+  }
+}
+
+function openSetupModal() {
+  document.getElementById('gasUrl').value = gasUrl;
+  document.getElementById('authorName').value = authorName;
+  document.getElementById('modalOverlay').classList.remove('hidden');
+}
+function closeSetupModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+}
+function copyGasCode() {
+  navigator.clipboard.writeText(GAS_CODE).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✓ 已複製'; setTimeout(()=>btn.textContent='複製程式碼', 2000);
+  });
+}
+async function saveSettings() {
+  const url = document.getElementById('gasUrl').value.trim();
+  const author = document.getElementById('authorName').value.trim();
+  if (!url || !url.includes('script.google.com')) {
+    alert('請貼入正確的 Apps Script 網址'); return;
+  }
+  gasUrl = url;
+  authorName = author;
+  localStorage.setItem('carwash_gasUrl', gasUrl);
+  localStorage.setItem('carwash_author', authorName);
+  closeSetupModal();
+  initSyncBar();
+  await syncToSheets(true);
+}
+
+// ─── Render day list ─────────────────────────────────────
+function renderDay() {
+  const txs = getDayData(currentDate);
+  const list = document.getElementById('txList');
+  if (!txs.length) {
+    list.innerHTML = `<div class="empty-state"><div class="icon">💧</div>今日尚無記錄<br>請在右側新增交易</div>`;
+    return;
+  }
+  list.innerHTML = [...txs].reverse().map(t => `
+    <div class="tx-item">
+      <div class="tx-dot" style="background:${t.type==='income'?'var(--green)':'var(--red)'}"></div>
+      <div class="tx-info">
+        <div class="tx-name">${t.name}${t.qty>1 ? ` ×${t.qty}` : ''}</div>
+        <div class="tx-meta">${t.time}${t.note ? ' · ' + t.note : ''}${t.cat ? ' · '+t.cat : ''}</div>
+      </div>
+      <div class="tx-amount" style="color:${t.type==='income'?'var(--green)':'var(--red)'}">
+        ${t.type==='income'?'+':'-'}$${t.total.toLocaleString()}
+      </div>
+      <button class="tx-del" onclick="deleteTransaction(${t.id})">×</button>
+    </div>
+  `).join('');
+}
+
+// ─── Stats ───────────────────────────────────────────────
+function renderStats() {
+  const txs = getDayData(currentDate);
+  const income = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.total,0);
+  const expense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.total,0);
+  const net = income - expense;
+  document.getElementById('statIncome').textContent = '$' + income.toLocaleString();
+  document.getElementById('statExpense').textContent = '$' + expense.toLocaleString();
+  document.getElementById('statNet').textContent = (net>=0?'+':'-') + '$' + Math.abs(net).toLocaleString();
+  document.getElementById('statNet').style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('statIncomeCnt').textContent = txs.filter(t=>t.type==='income').length + ' 筆交易';
+  document.getElementById('statExpenseCnt').textContent = txs.filter(t=>t.type==='expense').length + ' 筆支出';
+}
+
+function renderMonthStats() {
+  const ym = currentDate.slice(0,7);
+  let mIncome=0, mExpense=0;
+  Object.keys(data).filter(d=>d.startsWith(ym)).forEach(d=>{
+    data[d].forEach(t=>{
+      if(t.type==='income') mIncome+=t.total;
+      else mExpense+=t.total;
+    });
+  });
+  const mNet = mIncome - mExpense;
+  document.getElementById('statMonth').textContent = (mNet>=0?'+':'-') + '$' + Math.abs(mNet).toLocaleString();
+  document.getElementById('statMonth').style.color = mNet >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('statMonthSub').textContent = ym + ' 累計';
+}
+
+renderStats();
+
+// ─── Monthly view ────────────────────────────────────────
+function changeMonth(delta) {
+  const [y,m] = currentMonthView.split('-').map(Number);
+  const d = new Date(y, m-1+delta, 1);
+  currentMonthView = d.toISOString().slice(0,7);
+  renderMonthlyView();
+}
+
+function renderMonthlyView() {
+  const ym = currentMonthView;
+  const [y,m] = ym.split('-').map(Number);
+  document.getElementById('monthLabel').textContent = `${y} 年 ${m} 月`;
+
+  const daysInMonth = new Date(y, m, 0).getDate();
+  let mIncome=0, mExpense=0;
+  const rows = [];
+
+  for (let d=1; d<=daysInMonth; d++) {
+    const key = `${ym}-${String(d).padStart(2,'0')}`;
+    const txs = data[key] || [];
+    if (!txs.length && key > todayStr()) continue; // hide future empty days
+
+    const inc = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.total,0);
+    const exp = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.total,0);
+    const net = inc - exp;
+    mIncome += inc; mExpense += exp;
+    const isToday = key === todayStr();
+    rows.push(`<tr class="${isToday?'today-row':''}" style="cursor:pointer" onclick="jumpToDate('${key}')">
+      <td style="font-family:'DM Mono',monospace;font-size:13px">${m}/${d}${isToday?' 🔵':''}</td>
+      <td style="color:var(--green)">$${inc.toLocaleString()}</td>
+      <td style="color:var(--red)">$${exp.toLocaleString()}</td>
+      <td style="color:${net>=0?'var(--accent)':'var(--red)'};font-weight:500">
+        ${net>=0?'+':'-'}$${Math.abs(net).toLocaleString()}
+      </td>
+    </tr>`);
+  }
+
+  const mNet = mIncome - mExpense;
+  document.getElementById('mIncome').textContent = '$' + mIncome.toLocaleString();
+  document.getElementById('mExpense').textContent = '$' + mExpense.toLocaleString();
+  document.getElementById('mNet').textContent = (mNet>=0?'+':'-') + '$' + Math.abs(mNet).toLocaleString();
+  document.getElementById('mNet').style.color = mNet >= 0 ? 'var(--accent)' : 'var(--red)';
+  document.getElementById('monthTableBody').innerHTML = rows.join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">本月尚無記錄</td></tr>';
+}
+
+function jumpToDate(d) {
+  currentDate = d;
+  document.getElementById('dateInput').value = d;
+  renderHeaderDate();
+  renderDay();
+  renderStats();
+  switchView('daily', document.querySelector('.tab'));
+  document.querySelectorAll('.tab')[0].click();
+}
+
+// ─── Export functions ────────────────────────────────────
+function getMonthSummaryRows() {
+  const ym = currentMonthView;
+  const [y, m] = ym.split('-').map(Number);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const rows = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${ym}-${String(d).padStart(2,'0')}`;
+    const txs = data[key] || [];
+    const inc = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.total,0);
+    const exp = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.total,0);
+    rows.push({ date: key, income: inc, expense: exp, net: inc-exp, count: txs.length });
+  }
+  return rows;
+}
+
+function downloadFile(filename, content, mime) {
+  const blob = new Blob(['\uFEFF' + content], { type: mime + ';charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportCSV() {
+  const ym = currentMonthView;
+  const [y, m] = ym.split('-').map(Number);
+  const rows = getMonthSummaryRows();
+  let mIncome=0, mExpense=0;
+  rows.forEach(r=>{ mIncome+=r.income; mExpense+=r.expense; });
+  let csv = `洗車場月報表 - ${y}年${m}月\n`;
+  csv += `月收入,月支出,月淨利\n`;
+  csv += `${mIncome},${mExpense},${mIncome-mExpense}\n\n`;
+  csv += `日期,收入(NT$),支出(NT$),淨利(NT$),交易筆數\n`;
+  rows.forEach(r => { csv += `${r.date},${r.income},${r.expense},${r.net},${r.count}\n`; });
+  downloadFile(`洗車場_月報_${ym}.csv`, csv, 'text/csv');
+}
+
+function exportDetailCSV() {
+  const ym = currentMonthView;
+  const [y, m] = ym.split('-').map(Number);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  let csv = `洗車場交易明細 - ${y}年${m}月\n`;
+  csv += `日期,時間,類型,項目,單價(NT$),數量,小計(NT$),類別,備註\n`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${ym}-${String(d).padStart(2,'0')}`;
+    (data[key] || []).forEach(t => {
+      csv += `${key},${t.time},${t.type==='income'?'收入':'支出'},${t.name},${t.amount},${t.qty},${t.total},${t.cat||''},${t.note||''}\n`;
+    });
+  }
+  downloadFile(`洗車場_明細_${ym}.csv`, csv, 'text/csv');
+}
+
+function exportXLSX() {
+  if (typeof XLSX === 'undefined') {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = () => doExportXLSX();
+    document.head.appendChild(s);
+  } else {
+    doExportXLSX();
+  }
+}
+
+function doExportXLSX() {
+  const ym = currentMonthView;
+  const [y, m] = ym.split('-').map(Number);
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: 月彙總
+  const rows = getMonthSummaryRows();
+  let mIncome=0, mExpense=0;
+  rows.forEach(r=>{ mIncome+=r.income; mExpense+=r.expense; });
+  const summaryData = [
+    [`洗車場月報表 - ${y}年${m}月`],
+    [],
+    ['月收入 (NT$)', '月支出 (NT$)', '月淨利 (NT$)'],
+    [mIncome, mExpense, mIncome-mExpense],
+    [],
+    ['日期', '收入 (NT$)', '支出 (NT$)', '淨利 (NT$)', '交易筆數'],
+    ...rows.map(r => [r.date, r.income, r.expense, r.net, r.count])
+  ];
+  const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+  ws1['!cols'] = [14,14,14,14,10].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, ws1, '月報彙總');
+
+  // Sheet 2: 每筆明細
+  const detailData = [['日期','時間','類型','項目','單價','數量','小計','類別','備註']];
+  const daysInMonth = new Date(y, m, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${ym}-${String(d).padStart(2,'0')}`;
+    (data[key] || []).forEach(t => {
+      detailData.push([key, t.time, t.type==='income'?'收入':'支出', t.name, t.amount, t.qty, t.total, t.cat||'', t.note||'']);
+    });
+  }
+  const ws2 = XLSX.utils.aoa_to_sheet(detailData);
+  ws2['!cols'] = [12,8,6,14,10,6,10,10,16].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, ws2, '每筆明細');
+
+  XLSX.writeFile(wb, `洗車場_月報_${ym}.xlsx`);
+}
+
+// ─── View switch ─────────────────────────────────────────
+function switchView(view, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('dailyView').classList.toggle('hidden', view !== 'daily');
+  document.getElementById('monthlyView').classList.toggle('hidden', view !== 'monthly');
+  if (view === 'monthly') {
+    currentMonthView = currentDate.slice(0,7);
+    renderMonthlyView();
+  }
+}
+</script>
+</body>
+</html>
