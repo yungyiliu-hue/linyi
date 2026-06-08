@@ -183,6 +183,26 @@
   .panel-title span { font-size: 17px; }
   .panel-body { padding: 18px; }
 
+  /* Car size toggle */
+  .car-size-toggle {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 14px;
+  }
+  .size-btn {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 12px 8px; border-radius: 12px; border: 2px solid var(--border);
+    background: var(--surface2); color: var(--muted);
+    cursor: pointer; font-size: 16px; font-weight: 700;
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.15s; gap: 3px;
+  }
+  .size-btn span { font-size: 10px; font-weight: 500; }
+  .size-btn.active {
+    border-color: var(--accent); background: var(--accent-light);
+    color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+  .size-btn:hover { border-color: var(--accent); color: var(--accent); }
+
   /* Service buttons */
   .service-grid {
     display: grid;
@@ -566,7 +586,12 @@
         <div class="panel-body">
 
           <!-- Service presets at top always visible -->
-          <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:0.3px">快速選擇服務</div>
+          <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:0.3px">選擇車型</div>
+          <div class="car-size-toggle">
+            <button class="size-btn active" id="btnSmall" onclick="setCarSize('small')">🚗 小車<span>1.7m 以下</span></button>
+            <button class="size-btn" id="btnLarge" onclick="setCarSize('large')">🚙 大車<span>1.7m 以上</span></button>
+          </div>
+          <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:0.3px">選擇服務</div>
           <div class="service-grid" id="serviceGrid"></div>
 
           <div class="type-tabs" style="margin-top:4px">
@@ -629,14 +654,24 @@
 
 <script>
 // ─── Data ───────────────────────────────────────────────
-const SERVICES = [
-  { name: '一般洗車', price: 250 },
-  { name: '精緻洗車', price: 450 },
-  { name: '打蠟服務', price: 800 },
-  { name: '室內清潔', price: 600 },
-  { name: '引擎清洗', price: 1200 },
-  { name: '全車美容', price: 2500 },
-];
+const SERVICES = {
+  small: [
+    { name: '機器洗車', price: 120 },
+    { name: '機器洗車＋吸塵', price: 200 },
+    { name: '水刀洗車', price: 180 },
+    { name: '水刀洗車＋吸塵', price: 250 },
+    { name: '內部吸塵', price: 100 },
+    { name: '打蠟', price: 800 },
+  ],
+  large: [
+    { name: '機器洗車', price: 140 },
+    { name: '機器洗車＋吸塵', price: 250 },
+    { name: '水刀洗車', price: 200 },
+    { name: '水刀洗車＋吸塵', price: 300 },
+    { name: '內部吸塵', price: 120 },
+    { name: '打蠟', price: 1000 },
+  ],
+};
 const EXPENSE_CATS = ['水電費','薪資','清潔耗材','設備維修','油料','租金','雜費'];
 
 const GAS_CODE = `function doPost(e) {
@@ -698,6 +733,7 @@ let currentDate = todayStr();
 let currentMonthView = currentDate.slice(0,7);
 let currentType = 'income';
 let selectedCat = '';
+let currentCarSize = 'small';
 let data = {};
 let gasUrl = HARDCODED_GAS_URL;
 let authorName = '';
@@ -764,9 +800,21 @@ function renderHeaderDate() {
 }
 
 // ─── Services ────────────────────────────────────────────
+function setCarSize(size) {
+  currentCarSize = size;
+  document.getElementById('btnSmall').classList.toggle('active', size === 'small');
+  document.getElementById('btnLarge').classList.toggle('active', size === 'large');
+  // clear selection
+  document.getElementById('txName').value = '';
+  document.getElementById('txAmount').value = '';
+  document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('selected'));
+  renderServiceGrid();
+}
+
 function renderServiceGrid() {
   const g = document.getElementById('serviceGrid');
-  g.innerHTML = SERVICES.map((s,i) => `
+  const list = SERVICES[currentCarSize];
+  g.innerHTML = list.map((s, i) => `
     <div class="service-btn" onclick="selectService(${i})">
       <div class="s-name">${s.name}</div>
       <div class="s-price">NT$${s.price}</div>
@@ -774,9 +822,11 @@ function renderServiceGrid() {
   `).join('');
 }
 function selectService(i) {
-  document.querySelectorAll('.service-btn').forEach((b,j) => b.classList.toggle('selected', j===i));
-  document.getElementById('txName').value = SERVICES[i].name;
-  document.getElementById('txAmount').value = SERVICES[i].price;
+  document.querySelectorAll('.service-btn').forEach((b, j) => b.classList.toggle('selected', j === i));
+  const s = SERVICES[currentCarSize][i];
+  const sizeLabel = currentCarSize === 'small' ? '小車' : '大車';
+  document.getElementById('txName').value = `${s.name}（${sizeLabel}）`;
+  document.getElementById('txAmount').value = s.price;
 }
 
 function renderCatChips() {
@@ -796,7 +846,6 @@ function setType(type, el) {
   currentType = type;
   document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('incomeSection').classList.toggle('hidden', type !== 'income');
   document.getElementById('expenseSection').classList.toggle('hidden', type !== 'expense');
   document.getElementById('txName').value = '';
   document.getElementById('txAmount').value = '';
