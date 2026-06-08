@@ -378,6 +378,27 @@
   }
   .cat-chip.active { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-light); }
 
+
+  /* Toast notification */
+  .toast {
+    position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-80px);
+    background: var(--green); color: #fff;
+    padding: 14px 28px; border-radius: 50px;
+    font-size: 16px; font-weight: 700;
+    box-shadow: 0 8px 24px rgba(22,163,74,0.4);
+    z-index: 999; transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* New item highlight */
+  @keyframes highlight {
+    0%   { background: #fef9c3; border-color: #facc15; }
+    70%  { background: #fef9c3; border-color: #facc15; }
+    100% { background: var(--surface2); border-color: var(--border); }
+  }
+  .tx-item.new { animation: highlight 2.5s ease forwards, slideIn 0.25s ease; }
+
   .hidden { display: none !important; }
 
   /* Sync bar */
@@ -444,7 +465,30 @@
   }
   .modal-cancel:hover { border-color: var(--text); color: var(--text); }
 
-  /* First time name prompt banner */
+  .void-btn {
+    flex: 1; padding: 15px;
+    background: var(--red-light);
+    border: 2px solid var(--red); border-radius: 12px;
+    color: var(--red); font-size: 15px; font-weight: 800;
+    cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.15s;
+  }
+  .void-btn:hover, .void-btn:active { background: #fee2e2; }
+
+  /* Void modal list */
+  .void-list { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; margin: 14px 0; }
+  .void-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; background: var(--surface2);
+    border: 1.5px solid var(--border); border-radius: 10px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .void-item:hover { border-color: var(--red); background: var(--red-light); }
+  .void-item.voided { opacity: 0.4; pointer-events: none; text-decoration: line-through; }
+  .void-item-info { flex: 1; }
+  .void-item-name { font-size: 14px; font-weight: 600; }
+  .void-item-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .void-item-amt { font-size: 15px; font-weight: 800; color: var(--green); }
   .name-banner {
     background: #fef9c3; border: 1.5px solid #fde047;
     border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
@@ -495,8 +539,17 @@
     <button class="sync-setup-btn" onclick="openSetupModal()">👤 設定員工名稱</button>
   </div>
 
-  <!-- Name Modal -->
-  <div class="modal-overlay hidden" id="modalOverlay">
+  <!-- Void Modal -->
+  <div class="modal-overlay hidden" id="voidModalOverlay">
+    <div class="modal">
+      <h2>❌ 選擇要作廢的項目</h2>
+      <p class="modal-sub">點選錯誤的那筆，系統會標記作廢並同步到試算表。</p>
+      <div class="void-list" id="voidList"></div>
+      <div class="modal-btns">
+        <button class="modal-cancel" onclick="closeVoidModal()" style="width:100%">關閉</button>
+      </div>
+    </div>
+  </div>
     <div class="modal">
       <h2>👤 設定員工名稱</h2>
       <p class="modal-sub">設定後，Google 試算表會顯示是誰記的帳。只需設定一次。</p>
@@ -561,10 +614,10 @@
             <table class="daily-table">
               <thead>
                 <tr>
-                  <th>日期</th>
-                  <th>收入</th>
-                  <th>支出</th>
-                  <th>淨利</th>
+                  <th>วันที่</th>
+                  <th>月收入</th>
+                  <th>月支出</th>
+                  <th>กำไร</th>
                 </tr>
               </thead>
               <tbody id="monthTableBody"></tbody>
@@ -594,23 +647,10 @@
           <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:0.3px">選擇服務</div>
           <div class="service-grid" id="serviceGrid"></div>
 
-          <div class="type-tabs" style="margin-top:4px">
-            <div class="type-tab active" data-type="income" onclick="setType('income',this)">💰 收入</div>
-            <div class="type-tab" data-type="expense" onclick="setType('expense',this)">💸 支出</div>
-          </div>
-
-          <!-- Expense: category -->
-          <div id="expenseSection" class="hidden">
-            <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px">支出類別</div>
-            <div class="cat-chips" id="catChips"></div>
-          </div>
-
-          <div id="incomeSection"></div>
-
           <div class="form-row">
             <div class="form-group">
               <label>項目名稱</label>
-              <input type="text" id="txName" placeholder="e.g. 一般洗車">
+              <input type="text" id="txName" placeholder="點上方服務自動填入">
             </div>
           </div>
           <div class="form-row">
@@ -629,7 +669,10 @@
               <input type="text" id="txNote" placeholder="車牌、備忘...">
             </div>
           </div>
-          <button class="submit-btn" onclick="addTransaction()">新增交易</button>
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <button class="submit-btn" onclick="addTransaction()" style="flex:2">✅ 新增收入</button>
+            <button class="void-btn" onclick="openVoidMode()">❌ 作廢</button>
+          </div>
         </div>
       </div>
 
@@ -795,7 +838,7 @@ function goToday() {
 
 function renderHeaderDate() {
   const d = new Date(currentDate + 'T00:00:00');
-  const opts = { year:'numeric', month:'long', day:'numeric', weekday:'short' };
+  const opts = { year:'numeric', month:'long', day:'numeric', weekday:'long' };
   document.getElementById('headerDate').textContent = d.toLocaleDateString('zh-TW', opts);
 }
 
@@ -866,14 +909,15 @@ function addTransaction() {
 
   const tx = {
     id: Date.now(),
-    type: currentType,
+    type: 'income',
     name,
     amount,
     qty,
     total: amount * qty,
     note,
-    cat: currentType === 'expense' ? selectedCat : '',
+    cat: '',
     time: new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'}),
+    voided: false,
   };
 
   getDayData(currentDate).push(tx);
@@ -882,6 +926,7 @@ function addTransaction() {
   renderStats();
   renderMonthStats();
   scheduleSync();
+  
 
   // Reset
   document.getElementById('txName').value = '';
@@ -889,17 +934,61 @@ function addTransaction() {
   document.getElementById('txQty').value = '1';
   document.getElementById('txNote').value = '';
   document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('selected'));
-  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
 }
 
-// ─── Delete ──────────────────────────────────────────────
-function deleteTransaction(id) {
-  data[currentDate] = (data[currentDate] || []).filter(t => t.id !== id);
+// ─── Void ────────────────────────────────────────────────
+function openVoidMode() {
+  const txs = getDayData(currentDate).filter(t => !t.voided);
+  const list = document.getElementById('voidList');
+  if (!txs.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px">今日尚無可作廢的記錄</div>';
+  } else {
+    list.innerHTML = [...txs].reverse().map(t => `
+      <div class="void-item" onclick="voidTransaction(${t.id})">
+        <div class="void-item-info">
+          <div class="void-item-name">${t.name}</div>
+          <div class="void-item-meta">${t.time}${t.note ? ' · ' + t.note : ''}</div>
+        </div>
+        <div class="void-item-amt">$${t.total.toLocaleString()}</div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('voidModalOverlay').classList.remove('hidden');
+}
+
+function closeVoidModal() {
+  document.getElementById('voidModalOverlay').classList.add('hidden');
+}
+
+function voidTransaction(id) {
+  if (!confirm('確定要作廢這筆記錄嗎？')) return;
+  const txs = getDayData(currentDate);
+  const tx = txs.find(t => t.id === id);
+  if (!tx) return;
+
+  // Add a void record
+  const voidTx = {
+    id: Date.now(),
+    type: 'void',
+    name: tx.name,
+    amount: -tx.amount,
+    qty: tx.qty,
+    total: -tx.total,
+    note: `作廢`,
+    cat: '',
+    time: new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'}),
+    voided: false,
+    voidRef: tx.id,
+  };
+  tx.voided = true;
+  txs.push(voidTx);
+
   saveStorage();
   renderDay();
   renderStats();
   renderMonthStats();
   scheduleSync();
+  closeVoidModal();
 }
 
 // ─── Google Sheets Sync ──────────────────────────────────
@@ -908,7 +997,7 @@ function initSyncBar() {
   const status = document.getElementById('syncStatus');
   const nowBtn = document.getElementById('syncNowBtn');
   dot.className = 'sync-dot ok';
-  const who = authorName ? `<b>${authorName}</b>` : '<b style="color:#dc2626">⚠ 未設定名稱</b>';
+  const who = authorName ? `<b>${authorName}</b>` : '<b style="color:#dc2626">⚠ 未ตั้งชื่อ</b>';
   status.innerHTML = `${who} — 記帳後自動同步至 Google 試算表`;
   nowBtn.style.display = 'inline-block';
 
@@ -919,7 +1008,7 @@ function initSyncBar() {
       banner = document.createElement('div');
       banner.id = 'nameBanner';
       banner.className = 'name-banner';
-      banner.innerHTML = `👋 第一次使用？請先設定你的名稱，方便老闆知道誰記的帳！<button onclick="openSetupModal()">設定名稱</button>`;
+      banner.innerHTML = `👋 第一次使用？請先設定你的名稱，方便老闆知道誰記的帳！<button onclick="openSetupModal()">ตั้งชื่อ</button>`;
       document.getElementById('syncBar').after(banner);
     }
   } else {
@@ -932,6 +1021,19 @@ function setSyncState(state, msg) {
   const status = document.getElementById('syncStatus');
   dot.className = 'sync-dot ' + state;
   status.innerHTML = msg;
+}
+function showToast(msg) {
+  let t = document.getElementById('appToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'appToast';
+    t.className = 'toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
 function scheduleSync() {
@@ -952,8 +1054,8 @@ async function syncToSheets(showAlert) {
     });
     const json = await resp.json();
     if (json.status === 'ok') {
-      const t = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit'});
-      const who = authorName ? `（${authorName}）` : '';
+      const t = bkkTime();
+      const who = authorName ? ` (${authorName})` : '';
       setSyncState('ok', `<b>✓ 同步成功</b>${who} — 最後同步 ${t}`);
       if (showAlert) alert('✅ 同步成功！Google 試算表已更新。');
     } else {
@@ -995,33 +1097,38 @@ function renderDay() {
     list.innerHTML = `<div class="empty-state"><div class="icon">💧</div>今日尚無記錄<br>請在右側新增交易</div>`;
     return;
   }
-  list.innerHTML = [...txs].reverse().map(t => `
-    <div class="tx-item">
-      <div class="tx-dot" style="background:${t.type==='income'?'var(--green)':'var(--red)'}"></div>
-      <div class="tx-info">
-        <div class="tx-name">${t.name}${t.qty>1 ? ` ×${t.qty}` : ''}</div>
-        <div class="tx-meta">${t.time}${t.note ? ' · ' + t.note : ''}${t.cat ? ' · '+t.cat : ''}</div>
+  list.innerHTML = [...txs].reverse().map(t => {
+    const isVoid = t.type === 'void';
+    const isVoided = t.voided;
+    const color = isVoid ? 'var(--muted)' : 'var(--green)';
+    const dotColor = isVoid ? '#cbd5e1' : 'var(--green)';
+    const amtText = isVoid ? `<s style="color:var(--muted)">-$${Math.abs(t.total).toLocaleString()}</s>` : `+$${t.total.toLocaleString()}`;
+    const nameStyle = isVoided ? 'text-decoration:line-through;color:var(--muted)' : '';
+    return `
+      <div class="tx-item${false ? ' new' : ''}" style="${isVoid||isVoided ? 'opacity:0.55' : ''}">
+        <div class="tx-dot" style="background:${dotColor}"></div>
+        <div class="tx-info">
+          <div class="tx-name" style="${nameStyle}">${isVoid ? '❌ 作廢：' : ''}${t.name}${t.qty > 1 ? ` ×${t.qty}` : ''}</div>
+          <div class="tx-meta">${t.time}${t.note ? ' · ' + t.note : ''}</div>
+        </div>
+        <div class="tx-amount" style="color:${color}">${amtText}</div>
       </div>
-      <div class="tx-amount" style="color:${t.type==='income'?'var(--green)':'var(--red)'}">
-        ${t.type==='income'?'+':'-'}$${t.total.toLocaleString()}
-      </div>
-      <button class="tx-del" onclick="deleteTransaction(${t.id})">×</button>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 // ─── Stats ───────────────────────────────────────────────
 function renderStats() {
   const txs = getDayData(currentDate);
-  const todayCnt = txs.length;
-  document.getElementById('statIncomeCnt').textContent = todayCnt;
+  const validCnt = txs.filter(t => t.type === 'income' && !t.voided).length;
+  document.getElementById('statIncomeCnt').textContent = validCnt;
 }
 
 function renderMonthStats() {
   const ym = currentDate.slice(0,7);
   let mCount = 0;
   Object.keys(data).filter(d => d.startsWith(ym)).forEach(d => {
-    mCount += (data[d] || []).length;
+    mCount += (data[d] || []).filter(t => t.type === 'income' && !t.voided).length;
   });
   document.getElementById('statMonth').textContent = mCount;
   document.getElementById('statMonthSub').textContent = ym + ' 累計';
