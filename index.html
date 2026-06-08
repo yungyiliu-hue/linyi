@@ -1129,7 +1129,7 @@ async function syncToSheets(showAlert) {
     });
     const json = await resp.json();
     if (json.status === 'ok') {
-      const t = bkkTime();
+      const t = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
       const who = authorName ? ` (${authorName})` : '';
       setSyncState('ok', `<b>✓ 同步成功</b>${who} — 最後同步 ${t}`);
       if (showAlert) alert('✅ 同步成功！Google 試算表已更新。');
