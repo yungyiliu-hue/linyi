@@ -945,7 +945,18 @@ function setType(type, el) {
 }
 
 // ─── Add transaction ────────────────────────────────────
+function checkAuthor() {
+  if (!authorName || !authorName.trim()) {
+    showToast('⚠️ กรุณาตั้งชื่อก่อน / 請先設定名稱！');
+    openSetupModal();
+    return false;
+  }
+  return true;
+}
+
 function addTransaction() {
+  if (!checkAuthor()) return;
+
   const name = document.getElementById('txName').value.trim();
   const amount = parseFloat(document.getElementById('txAmount').value);
   const qty = parseInt(document.getElementById('txQty').value) || 1;
@@ -987,6 +998,7 @@ function addTransaction() {
 
 // ─── Void ────────────────────────────────────────────────
 function openVoidMode() {
+  if (!checkAuthor()) return;
   const txs = getDayData(currentDate).filter(t => !t.voided);
   const list = document.getElementById('voidList');
   if (!txs.length) {
@@ -1130,7 +1142,7 @@ function copyGasCode() {
 }
 async function saveSettings() {
   const author = document.getElementById('authorName').value.trim();
-  if (!author) { alert('กรุณากรอกชื่อ / 請輸入名稱'); return; }
+  if (!author || author.trim().length === 0) { alert('กรุณากรอกชื่อ / 請輸入名稱，不能空白'); return; }
   const oldName = authorName || '（未設定）';
   authorName = author;
   localStorage.setItem('carwash_author', authorName);
