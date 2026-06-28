@@ -1131,11 +1131,30 @@ function copyGasCode() {
 async function saveSettings() {
   const author = document.getElementById('authorName').value.trim();
   if (!author) { alert('กรุณากรอกชื่อ / 請輸入名稱'); return; }
+  const oldName = authorName || '（未設定）';
   authorName = author;
   localStorage.setItem('carwash_author', authorName);
-  closeSetupModal();
+  document.getElementById('modalOverlay').classList.add('hidden');
   initSyncBar();
   showToast('✅ ตั้งค่าสำเร็จ! / 設定成功！ → ' + authorName);
+
+  // Log name change to Google Sheets
+  if (gasUrl && oldName !== authorName) {
+    const now = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
+    const changeLog = {
+      date: currentDate,
+      time: now,
+      oldName: oldName,
+      newName: authorName,
+      device: navigator.userAgent.slice(0,80),
+    };
+    try {
+      await fetch(gasUrl, {
+        method: 'POST',
+        body: JSON.stringify({ type: 'nameChange', log: changeLog }),
+      });
+    } catch(e) { /* silent fail */ }
+  }
 }
 
 // ─── Render day list ─────────────────────────────────────
