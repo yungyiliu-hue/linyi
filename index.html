@@ -648,11 +648,11 @@
                 <div class="ms-val" id="mIncome" style="color:var(--green)">$0</div>
               </div>
               <div class="ms-card">
-                <div class="ms-label">รายจ่าย / 支出</div>
+                <div class="ms-label">ยกเลิก / 作廢金額</div>
                 <div class="ms-val" id="mExpense" style="color:var(--red)">$0</div>
               </div>
               <div class="ms-card">
-                <div class="ms-label">กำไร / 淨利</div>
+                <div class="ms-label">ยอดจริง / 實際收入</div>
                 <div class="ms-val" id="mNet" style="color:var(--accent)">$0</div>
               </div>
             </div>
@@ -661,7 +661,7 @@
                 <tr>
                   <th>วันที่</th>
                   <th>รายรับ / 收入</th>
-                  <th>รายจ่าย / 支出</th>
+                  <th>ยกเลิก / 作廢</th>
                   <th>กำไร</th>
                 </tr>
               </thead>
@@ -1208,7 +1208,7 @@ function renderMonthlyView() {
     if (!txs.length && key > todayStr()) continue; // hide future empty days
 
     const inc = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.total,0);
-    const exp = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.total,0);
+    const exp = txs.filter(t=>t.type==='void').reduce((s,t)=>s+Math.abs(t.total),0);
     const net = inc - exp;
     mIncome += inc; mExpense += exp;
     const isToday = key === todayStr();
@@ -1250,8 +1250,9 @@ function getMonthSummaryRows() {
     const key = `${ym}-${String(d).padStart(2,'0')}`;
     const txs = data[key] || [];
     const inc = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.total,0);
-    const exp = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.total,0);
-    rows.push({ date: key, income: inc, expense: exp, net: inc-exp, count: txs.length });
+    const exp = txs.filter(t=>t.type==='void').reduce((s,t)=>s+Math.abs(t.total),0);
+    const validCnt = txs.filter(t=>t.type==='income' && !t.voided).length;
+    rows.push({ date: key, income: inc, expense: exp, net: inc-exp, count: validCnt });
   }
   return rows;
 }
@@ -1272,9 +1273,9 @@ function exportCSV() {
   let mIncome=0, mExpense=0;
   rows.forEach(r=>{ mIncome+=r.income; mExpense+=r.expense; });
   let csv = `洗車場月報表 - ${y}年${m}月\n`;
-  csv += `月收入,月支出,月淨利\n`;
+  csv += `月收入,作廢金額,實際收入\n`;
   csv += `${mIncome},${mExpense},${mIncome-mExpense}\n\n`;
-  csv += `日期,收入(NT$),支出(NT$),淨利(NT$),交易筆數\n`;
+  csv += `日期,收入(฿),作廢金額(฿),實際收入(฿),有效筆數\n`;
   rows.forEach(r => { csv += `${r.date},${r.income},${r.expense},${r.net},${r.count}\n`; });
   downloadFile(`洗車場_月報_${ym}.csv`, csv, 'text/csv');
 }
@@ -1317,10 +1318,10 @@ function doExportXLSX() {
   const summaryData = [
     [`洗車場月報表 - ${y}年${m}月`],
     [],
-    ['月收入 (NT$)', '月支出 (NT$)', '月淨利 (NT$)'],
+    ['月收入 (฿)', '作廢金額 (฿)', '實際收入 (฿)'],
     [mIncome, mExpense, mIncome-mExpense],
     [],
-    ['日期', '收入 (NT$)', '支出 (NT$)', '淨利 (NT$)', '交易筆數'],
+    ['日期', '收入 (฿)', '作廢金額 (฿)', '實際收入 (฿)', '有效筆數'],
     ...rows.map(r => [r.date, r.income, r.expense, r.net, r.count])
   ];
   const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
