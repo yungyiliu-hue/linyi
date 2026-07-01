@@ -403,6 +403,64 @@
   .tx-item.new { animation: highlight 2.5s ease forwards, slideIn 0.25s ease; }
 
 
+
+  /* Coupon buttons */
+  .coupon-row {
+    display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .coupon-btn {
+    flex: 1; min-width: 0;
+    padding: 10px 8px;
+    background: #fff7ed; border: 2px solid #f97316;
+    border-radius: 10px; color: #c2410c;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
+    transition: all 0.15s; text-align: center; line-height: 1.3;
+  }
+  .coupon-btn:hover, .coupon-btn:active {
+    background: #f97316; color: #fff;
+    transform: translateY(-1px);
+  }
+  .coupon-btn.applied {
+    background: #f97316; color: #fff;
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+  }
+  .coupon-badge {
+    display: inline-block; background: #f97316; color: #fff;
+    font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: 20px; margin-left: 6px;
+  }
+
+
+  /* Numpad */
+  .numpad-wrap { margin-bottom: 12px; }
+  .numpad-display {
+    background: #cbd5e1; border: 1.5px solid #94a3b8;
+    border-radius: 10px; padding: 11px 14px;
+    font-size: 16px; font-weight: 700; color: #0f172a;
+    min-height: 46px; margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+  .numpad-display.empty { color: #94a3b8; font-weight: 400; letter-spacing: 0; }
+  .numpad-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+  .np-btn {
+    padding: 12px 4px;
+    background: #f1f5f9; border: 1.5px solid #cbd5e1;
+    border-radius: 8px; font-size: 16px; font-weight: 700; color: #1e293b;
+    cursor: pointer; font-family: 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
+    transition: all 0.12s; text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .np-btn:active { background: #2563eb; color: #fff; border-color: #2563eb; transform: scale(0.95); }
+  .np-btn.np-clear { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+  .np-btn.np-clear:active { background: #dc2626; color: #fff; }
+  .np-btn.np-del { background: #fef9c3; border-color: #fde047; color: #854d0e; font-size: 18px; }
+  .np-btn.np-del:active { background: #eab308; color: #fff; }
+
   /* Toast */
   .toast {
     position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-100px);
@@ -422,6 +480,64 @@
   }
   .tx-item.newest { animation: slideIn 0.25s ease, txHighlight 2.5s ease forwards; }
 
+
+
+  /* Coupon buttons */
+  .coupon-row {
+    display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .coupon-btn {
+    flex: 1; min-width: 0;
+    padding: 10px 8px;
+    background: #fff7ed; border: 2px solid #f97316;
+    border-radius: 10px; color: #c2410c;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
+    transition: all 0.15s; text-align: center; line-height: 1.3;
+  }
+  .coupon-btn:hover, .coupon-btn:active {
+    background: #f97316; color: #fff;
+    transform: translateY(-1px);
+  }
+  .coupon-btn.applied {
+    background: #f97316; color: #fff;
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+  }
+  .coupon-badge {
+    display: inline-block; background: #f97316; color: #fff;
+    font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: 20px; margin-left: 6px;
+  }
+
+
+  /* Numpad */
+  .numpad-wrap { margin-bottom: 12px; }
+  .numpad-display {
+    background: #cbd5e1; border: 1.5px solid #94a3b8;
+    border-radius: 10px; padding: 11px 14px;
+    font-size: 16px; font-weight: 700; color: #0f172a;
+    min-height: 46px; margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+  .numpad-display.empty { color: #94a3b8; font-weight: 400; letter-spacing: 0; }
+  .numpad-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+  .np-btn {
+    padding: 12px 4px;
+    background: #f1f5f9; border: 1.5px solid #cbd5e1;
+    border-radius: 8px; font-size: 16px; font-weight: 700; color: #1e293b;
+    cursor: pointer; font-family: 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
+    transition: all 0.12s; text-align: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .np-btn:active { background: #2563eb; color: #fff; border-color: #2563eb; transform: scale(0.95); }
+  .np-btn.np-clear { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+  .np-btn.np-clear:active { background: #dc2626; color: #fff; }
+  .np-btn.np-del { background: #fef9c3; border-color: #fde047; color: #854d0e; font-size: 18px; }
+  .np-btn.np-del:active { background: #eab308; color: #fff; }
 
   /* Toast */
   .toast {
@@ -710,6 +826,12 @@
           <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:0.3px">เลือกบริการ / 選擇服務</div>
           <div class="service-grid" id="serviceGrid"></div>
 
+          <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:0.3px">🎟 คูปองส่วนลด / 優惠券折抵</div>
+          <div class="coupon-row" id="couponRow">
+            <button class="coupon-btn" onclick="applyCoupon(20)">🎟 -฿20</button>
+            <button class="coupon-btn" onclick="applyCoupon(0)" id="couponClearBtn" style="background:#f1f5f9;border-color:#94a3b8;color:#64748b">✕ ไม่ใช้ / 不用</button>
+          </div>
+
           <div class="form-row">
             <div class="form-group">
               <label>ชื่อรายการ / 項目名稱</label>
@@ -728,11 +850,24 @@
               <input type="number" id="txQty" value="1" min="1" style="background:#cbd5e1;color:#0f172a;font-weight:700;font-size:15px">
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>หมายเหตุ / 備註</label>
-              <input type="text" id="txNote" placeholder="ทะเบียน / 車牌...">
+          <div class="numpad-wrap">
+            <label style="font-size:12px;color:var(--muted);font-weight:600;letter-spacing:0.3px;display:block;margin-bottom:6px">ทะเบียนรถ / 車牌號碼</label>
+            <div class="numpad-display empty" id="numpadDisplay">ทะเบียน / 車牌...</div>
+            <div class="numpad-grid">
+              <button class="np-btn" onclick="npInput('1')">1</button>
+              <button class="np-btn" onclick="npInput('2')">2</button>
+              <button class="np-btn" onclick="npInput('3')">3</button>
+              <button class="np-btn" onclick="npInput('4')">4</button>
+              <button class="np-btn" onclick="npInput('5')">5</button>
+              <button class="np-btn" onclick="npInput('6')">6</button>
+              <button class="np-btn" onclick="npInput('7')">7</button>
+              <button class="np-btn" onclick="npInput('8')">8</button>
+              <button class="np-btn" onclick="npInput('9')">9</button>
+              <button class="np-btn" onclick="npInput('0')">0</button>
+              <button class="np-btn np-del" onclick="npDelete()">⌫</button>
+              <button class="np-btn np-clear" onclick="npClear()">C</button>
             </div>
+            <input type="hidden" id="txNote">
           </div>
           <div style="display:flex;gap:10px;margin-top:4px">
             <button class="submit-btn" onclick="addTransaction()" style="flex:2">✅ บันทึก / 新增收入</button>
@@ -842,6 +977,7 @@ let currentMonthView = currentDate.slice(0,7);
 let currentType = 'income';
 let selectedCat = '';
 let currentCarSize = 'small';
+let appliedCoupon = 0;
 let data = {};
 let gasUrl = HARDCODED_GAS_URL;
 let authorName = '';
@@ -923,12 +1059,32 @@ function setCarSize(size) {
   currentCarSize = size;
   document.getElementById('btnSmall').classList.toggle('active', size === 'small');
   document.getElementById('btnLarge').classList.toggle('active', size === 'large');
-  // clear selection
   document.getElementById('txName').value = '';
   document.getElementById('txDisplayName') && (document.getElementById('txDisplayName').value = '');
   document.getElementById('txAmount').value = '';
   document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('selected'));
   renderServiceGrid();
+}
+
+function applyCoupon(discount) {
+  appliedCoupon = discount;
+  // Update coupon button styles
+  document.querySelectorAll('.coupon-btn').forEach(b => b.classList.remove('applied'));
+  if (discount > 0) {
+    const btns = document.querySelectorAll('.coupon-btn');
+    btns.forEach(b => { if (b.textContent.includes('-฿' + discount)) b.classList.add('applied'); });
+    showToast('🎟 ใช้คูปอง -฿' + discount + ' / 優惠券 -฿' + discount);
+  }
+  // Recalculate amount if service already selected
+  const baseAmount = parseFloat(document.getElementById('txAmount').dataset.base || document.getElementById('txAmount').value);
+  if (baseAmount && discount > 0) {
+    document.getElementById('txAmount').dataset.base = baseAmount;
+    document.getElementById('txAmount').value = Math.max(0, baseAmount - discount);
+  } else if (discount === 0) {
+    const base = document.getElementById('txAmount').dataset.base;
+    if (base) document.getElementById('txAmount').value = base;
+    document.getElementById('txAmount').dataset.base = '';
+  }
 }
 
 function renderServiceGrid() {
@@ -949,9 +1105,12 @@ function selectService(i) {
   const s = SERVICES[currentCarSize][i];
   const sizeLabel = currentCarSize === 'small' ? '小車' : '大車';
   const sizeLabelTH = currentCarSize === 'small' ? 'รถเล็ก' : 'รถใหญ่';
-  document.getElementById('txName').value = s.nameCN;  // CN for sheets
+  document.getElementById('txName').value = s.nameCN;
   document.getElementById('txDisplayName').value = `${s.name} (${sizeLabelTH}) / ${s.sub}（${sizeLabel}）`;
-  document.getElementById('txAmount').value = s.price;
+  const finalPrice = Math.max(0, s.price - appliedCoupon);
+  const el = document.getElementById('txAmount');
+  el.value = finalPrice;
+  el.dataset.base = s.price;
 }
 
 function renderCatChips() {
@@ -991,6 +1150,24 @@ function checkAuthor() {
   return true;
 }
 
+// ─── Numpad ──────────────────────────────────────────────
+let numpadValue = '';
+function npRender() {
+  const d = document.getElementById('numpadDisplay');
+  const h = document.getElementById('txNote');
+  if (numpadValue) {
+    d.textContent = numpadValue;
+    d.classList.remove('empty');
+  } else {
+    d.textContent = 'ทะเบียน / 車牌...';
+    d.classList.add('empty');
+  }
+  h.value = numpadValue;
+}
+function npInput(v) { numpadValue += v; npRender(); }
+function npDelete() { numpadValue = numpadValue.slice(0,-1); npRender(); }
+function npClear() { numpadValue = ''; npRender(); }
+
 function addTransaction() {
   if (!checkAuthor()) return;
 
@@ -1002,6 +1179,7 @@ function addTransaction() {
   if (!name) { alert('กรุณาเลือกบริการ / 請選擇服務'); return; }
   if (!amount || amount <= 0) { alert('กรุณากรอกจำนวนเงิน / 請填寫金額'); return; }
 
+  const couponNote = appliedCoupon > 0 ? `[คูปอง-฿${appliedCoupon}]` : '';
   const tx = {
     id: Date.now(),
     type: 'income',
@@ -1009,7 +1187,7 @@ function addTransaction() {
     amount,
     qty,
     total: amount * qty,
-    note,
+    note: [couponNote, note].filter(Boolean).join(' '),
     cat: '',
     author: authorName || '',
     time: bkkTime(),
@@ -1029,9 +1207,12 @@ function addTransaction() {
   document.getElementById('txName').value = '';
   document.getElementById('txDisplayName').value = '';
   document.getElementById('txAmount').value = '';
+  document.getElementById('txAmount').dataset.base = '';
   document.getElementById('txQty').value = '1';
   document.getElementById('txNote').value = '';
+  numpadValue = ''; npRender();
   document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('selected'));
+  // Keep coupon active for next transaction
 }
 
 // ─── Void ────────────────────────────────────────────────
