@@ -841,6 +841,7 @@
               <input type="text" id="txDisplayName" placeholder="กดปุ่มบริการด้านบน" readonly
                 style="background:#cbd5e1;color:#0f172a;font-weight:700;cursor:default;font-size:15px">
               <input type="hidden" id="txName">
+              <input type="hidden" id="txNameTH">
             </div>
           </div>
           <div class="form-row">
@@ -1119,6 +1120,7 @@ function selectService(i) {
   const sizeLabel = currentCarSize === 'small' ? '小車' : '大車';
   const sizeLabelTH = currentCarSize === 'small' ? 'รถเล็ก' : 'รถใหญ่';
   document.getElementById('txName').value = s.nameCN;
+  document.getElementById('txNameTH').value = `${s.name} (${sizeLabelTH})`;
   document.getElementById('txDisplayName').value = `${s.name} (${sizeLabelTH}) / ${s.sub}（${sizeLabel}）`;
   const finalPrice = Math.max(0, s.price - appliedCoupon);
   const el = document.getElementById('txAmount');
@@ -1193,10 +1195,12 @@ function addTransaction() {
   if (!amount || amount <= 0) { alert('กรุณากรอกจำนวนเงิน / 請填寫金額'); return; }
 
   const couponNote = appliedCoupon > 0 ? `[คูปอง-฿${appliedCoupon}]` : '';
+  const nameTH = document.getElementById('txNameTH').value || '';
   const tx = {
     id: Date.now(),
     type: 'income',
     name,
+    nameTH,
     amount,
     qty,
     total: amount * qty,
@@ -1218,6 +1222,7 @@ function addTransaction() {
 
   // Reset
   document.getElementById('txName').value = '';
+  document.getElementById('txNameTH').value = '';
   document.getElementById('txDisplayName').value = '';
   document.getElementById('txAmount').value = '';
   document.getElementById('txAmount').dataset.base = '';
@@ -1420,7 +1425,7 @@ function renderDay(newestId) {
       <div class="tx-item${false ? ' new' : ''}" style="${isVoid||isVoided ? 'opacity:0.55' : ''}">
         <div class="tx-dot" style="background:${dotColor}"></div>
         <div class="tx-info">
-          <div class="tx-name" style="${nameStyle}">${isVoid ? '❌ ยกเลิก / 作廢：' : ''}${t.name}${t.qty > 1 ? ` ×${t.qty}` : ''}</div>
+          <div class="tx-name" style="${nameStyle}">${isVoid ? '❌ ยกเลิก / 作廢：' : ''}${t.nameTH ? t.nameTH + ' / ' : ''}${t.name}${t.qty > 1 ? ` ×${t.qty}` : ''}</div>
           <div class="tx-meta">${t.time}${t.author ? ' · ' + t.author : ''}${t.note ? ' · ' + t.note : ''}</div>
         </div>
         <div class="tx-amount" style="color:${color}">${amtText}</div>
