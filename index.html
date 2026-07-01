@@ -215,17 +215,18 @@
     background: var(--surface2);
     border: 1.5px solid var(--border);
     border-radius: 12px;
-    padding: 14px 10px;
+    padding: 16px 14px;
     cursor: pointer;
-    text-align: center;
+    text-align: left;
     transition: all 0.15s;
     color: var(--text);
   }
   .service-btn:hover, .service-btn:active { border-color: var(--accent); background: var(--accent-light); }
   .service-btn.selected { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-  .service-btn .s-name { font-size: 12px; font-weight: 700; }
-  .service-btn .s-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
-  .service-btn .s-price { font-size: 16px; font-weight: 800; color: var(--accent); margin-top: 4px; }
+  .service-btn .s-name { font-size: 15px; font-weight: 700; line-height: 1.3; }
+  .service-btn .s-row2 { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
+  .service-btn .s-sub { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .service-btn .s-price { font-size: 17px; font-weight: 800; color: var(--accent); }
 
   /* Form */
   .form-row { display: flex; gap: 10px; margin-bottom: 12px; }
@@ -293,7 +294,7 @@
   }
   .tx-info { flex: 1; min-width: 0; }
   .tx-name { font-size: 14px; font-weight: 600; color: var(--text); }
-  .tx-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .tx-meta { font-size: 13px; color: var(--text); margin-top: 2px; font-weight: 500; }
   .tx-amount {
     font-size: 16px; font-weight: 800;
     flex-shrink: 0;
@@ -713,18 +714,18 @@
             <div class="form-group">
               <label>ชื่อรายการ / 項目名稱</label>
               <input type="text" id="txDisplayName" placeholder="กดปุ่มบริการด้านบน" readonly
-                style="background:#f8fafc;color:var(--text);cursor:default">
+                style="background:#cbd5e1;color:#0f172a;font-weight:700;cursor:default;font-size:15px">
               <input type="hidden" id="txName">
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label>จำนวนเงิน (฿) / 金額</label>
-              <input type="number" id="txAmount" placeholder="0" min="0">
+              <input type="number" id="txAmount" placeholder="0" min="0" style="background:#cbd5e1;color:#0f172a;font-weight:700;font-size:15px">
             </div>
             <div class="form-group">
               <label>จำนวน / 數量</label>
-              <input type="number" id="txQty" value="1" min="1">
+              <input type="number" id="txQty" value="1" min="1" style="background:#cbd5e1;color:#0f172a;font-weight:700;font-size:15px">
             </div>
           </div>
           <div class="form-row">
@@ -847,7 +848,16 @@ let authorName = '';
 let syncTimer = null;
 
 function todayStr() {
-  return new Date().toISOString().slice(0,10);
+  const now = new Date();
+  const bkk = new Date(now.getTime() + 7*60*60*1000);
+  return bkk.toISOString().slice(0,10);
+}
+function bkkTime() {
+  const now = new Date();
+  const bkk = new Date(now.getTime() + 7*60*60*1000);
+  const h = String(bkk.getUTCHours()).padStart(2,'0');
+  const m = String(bkk.getUTCMinutes()).padStart(2,'0');
+  return h + ':' + m;
 }
 
 function loadStorage() {
@@ -927,8 +937,10 @@ function renderServiceGrid() {
   g.innerHTML = list.map((s, i) => `
     <div class="service-btn" onclick="selectService(${i})">
       <div class="s-name">${s.name}</div>
-      <div class="s-sub">${s.sub}</div>
-      <div class="s-price">฿${s.price}</div>
+      <div class="s-row2">
+        <div class="s-sub">${s.sub}</div>
+        <div class="s-price">฿${s.price}</div>
+      </div>
     </div>
   `).join('');
 }
@@ -1000,7 +1012,7 @@ function addTransaction() {
     note,
     cat: '',
     author: authorName || '',
-    time: new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'}),
+    time: bkkTime(),
     voided: false,
   };
 
@@ -1063,7 +1075,7 @@ function voidTransaction(id) {
     total: -tx.total,
     note: `ยกเลิก/作廢`,
     cat: '',
-    time: new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'}),
+    time: bkkTime(),
     voided: false,
     voidRef: tx.id,
   };
@@ -1140,7 +1152,7 @@ async function syncToSheets(showAlert) {
     });
     const json = await resp.json();
     if (json.status === 'ok') {
-      const t = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
+      const t = bkkTime();
       const who = authorName ? ` (${authorName})` : '';
       setSyncState('ok', `<b>✓ ซิงค์สำเร็จ / 同步成功</b> ${who} ${t}`);
       if (showAlert) alert('✅ 同步成功！Google 試算表已更新。');
@@ -1178,7 +1190,7 @@ async function saveSettings() {
 
   // Log name change to Google Sheets
   if (gasUrl && oldName !== authorName) {
-    const now = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'});
+    const now = bkkTime();
     const changeLog = {
       date: currentDate,
       time: now,
