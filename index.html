@@ -938,9 +938,20 @@ const GAS_CODE = `function doPost(e) {
       const lr = tab.getLastRow();
       if (lr > 1) tab.deleteRows(2, lr - 1);
     }
+    // Only append new IDs
+    const lr2 = tab.getLastRow();
+    const existingIds = lr2 > 1
+      ? tab.getRange(2,1,lr2-1,1).getValues().flat().map(String)
+      : [];
     transactions.forEach(t => {
-      tab.appendRow([t.time, author||'', t.type==='income'?'收入':'支出',
-        t.name, t.amount, t.qty, t.total, t.cat||'', t.note||'']);
+      if (!existingIds.includes(String(t.id))) {
+        tab.appendRow([
+          t.id, t.time, author||'',
+          t.type==='income' ? 'รายรับ/收入' : t.type==='void' ? 'ยกเลิก/作廢' : 'รายจ่าย/支出',
+          t.nameTH ? (t.nameTH + ' / ' + t.name) : t.name,
+          t.amount, t.qty, t.total, t.cat||'', t.note||''
+        ]);
+      }
     });
 
     // 月總覽工作表
