@@ -888,7 +888,7 @@
     <div class="stat-card" style="--accent-color: var(--accent)">
       <div class="label">ยอดของฉัน / 我的記帳金額</div>
       <div class="value" id="statIncomeCnt">฿0</div>
-      <div class="sub" id="statIncomeSub">—</div>
+      <div class="sub" id="statIncomeSub" style="font-size:15px;font-weight:800;color:#0f172a;margin-top:4px">—</div>
     </div>
     <div class="stat-card" style="--accent-color: var(--yellow)">
       <div class="label">ยอดวันนี้ / 今日總金額</div>
@@ -1300,6 +1300,7 @@ function voidTransaction(id) {
   renderMonthStats();
   scheduleSync();
   closeVoidModal();
+  showToast('✅ ยกเลิกสำเร็จ / 作廢成功');
 }
 
 // ─── Google Sheets Sync ──────────────────────────────────
