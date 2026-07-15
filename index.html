@@ -1203,7 +1203,7 @@ function addTransaction() {
   const note = document.getElementById('txNote').value.trim();
 
   if (!name) { alert('กรุณาเลือกบริการ / 請選擇服務'); return; }
-  if (!amount || amount <= 0) { alert('กรุณากรอกจำนวนเงิน / 請填寫金額'); return; }
+  if (!amount && amount !== 0) { alert('กรุณากรอกจำนวนเงิน / 請填寫金額'); return; }
 
   const couponNote = appliedCoupon > 0 ? `[คูปอง-฿${appliedCoupon}]` : '';
   const nameTH = document.getElementById('txNameTH').value || '';
