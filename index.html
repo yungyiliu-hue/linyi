@@ -886,14 +886,14 @@
   <!-- Stats (bottom) -->
   <div class="stats-grid" style="margin-top:16px;margin-bottom:0">
     <div class="stat-card" style="--accent-color: var(--accent)">
-      <div class="label">รายการวันนี้ / 今日筆數</div>
-      <div class="value" id="statIncomeCnt">0</div>
-      <div class="sub">รายการ / 筆</div>
+      <div class="label">ยอดของฉัน / 我的記帳金額</div>
+      <div class="value" id="statIncomeCnt">฿0</div>
+      <div class="sub" id="statIncomeSub">—</div>
     </div>
     <div class="stat-card" style="--accent-color: var(--yellow)">
-      <div class="label">รวมเดือนนี้ / 本月筆數</div>
-      <div class="value" id="statMonth">0</div>
-      <div class="sub" id="statMonthSub">本月至今</div>
+      <div class="label">ยอดวันนี้ / 今日總金額</div>
+      <div class="value" id="statMonth">฿0</div>
+      <div class="sub" id="statMonthSub">รวมทุกคน / 所有員工</div>
     </div>
   </div>
 
@@ -903,18 +903,18 @@
 // ─── Data ───────────────────────────────────────────────
 const SERVICES = {
   small: [
-    { name: 'ล้างรถเครื่อง', sub: '機器洗車', nameCN: '機器洗車（小車）', price: 120 },
-    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵', nameCN: '機器洗車+吸塵（小車）', price: 200 },
-    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（小車）', price: 180 },
-    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵', nameCN: '水刀洗車+吸塵（小車）', price: 250 },
+    { name: 'ล้างรถเครื่อง', sub: '機器洗車 🎉FREE', nameCN: '機器洗車（小車）', price: 0 },
+    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵', nameCN: '機器洗車+吸塵（小車）', price: 100 },
+    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（小車）', price: 60 },
+    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵', nameCN: '水刀洗車+吸塵（小車）', price: 160 },
     { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（小車）', price: 100 },
     { name: 'เคลือบแว็กซ์', sub: '打蠟', nameCN: '打蠟（小車）', price: 800 },
   ],
   large: [
-    { name: 'ล้างรถเครื่อง', sub: '機器洗車', nameCN: '機器洗車（大車）', price: 140 },
-    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵', nameCN: '機器洗車+吸塵（大車）', price: 250 },
-    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（大車）', price: 200 },
-    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵', nameCN: '水刀洗車+吸塵（大車）', price: 300 },
+    { name: 'ล้างรถเครื่อง', sub: '機器洗車 🎉FREE', nameCN: '機器洗車（大車）', price: 0 },
+    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵', nameCN: '機器洗車+吸塵（大車）', price: 120 },
+    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（大車）', price: 80 },
+    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵', nameCN: '水刀洗車+吸塵（大車）', price: 200 },
     { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（大車）', price: 120 },
     { name: 'เคลือบแว็กซ์', sub: '打蠟', nameCN: '打蠟（大車）', price: 1000 },
   ],
@@ -1396,6 +1396,7 @@ async function saveSettings() {
   localStorage.setItem('carwash_author', authorName);
   document.getElementById('modalOverlay').classList.add('hidden');
   initSyncBar();
+  renderStats();
   showToast('✅ ตั้งค่าสำเร็จ! / 設定成功！ → ' + authorName);
 
   // Log name change to Google Sheets
@@ -1448,18 +1449,22 @@ function renderDay(newestId) {
 // ─── Stats ───────────────────────────────────────────────
 function renderStats() {
   const txs = getDayData(currentDate);
-  const validCnt = txs.filter(t => t.type === 'income' && !t.voided).length;
-  document.getElementById('statIncomeCnt').textContent = validCnt;
+  // My amount: current author's valid income
+  const myAmount = txs
+    .filter(t => t.type === 'income' && !t.voided && t.author === authorName)
+    .reduce((s, t) => s + t.total, 0);
+  document.getElementById('statIncomeCnt').textContent = '฿' + myAmount.toLocaleString();
+  document.getElementById('statIncomeSub').textContent = authorName || '—';
 }
 
 function renderMonthStats() {
-  const ym = currentDate.slice(0,7);
-  let mCount = 0;
-  Object.keys(data).filter(d => d.startsWith(ym)).forEach(d => {
-    mCount += (data[d] || []).filter(t => t.type === 'income' && !t.voided).length;
-  });
-  document.getElementById('statMonth').textContent = mCount;
-  document.getElementById('statMonthSub').textContent = ym + ' รวม/累計';
+  // Today total: all staff
+  const txs = getDayData(currentDate);
+  const todayTotal = txs
+    .filter(t => t.type === 'income' && !t.voided)
+    .reduce((s, t) => s + t.total, 0);
+  document.getElementById('statMonth').textContent = '฿' + todayTotal.toLocaleString();
+  document.getElementById('statMonthSub').textContent = 'รวมทุกคน / 所有員工';
 }
 
 renderStats();
