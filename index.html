@@ -1255,10 +1255,10 @@ function openVoidMode() {
     list.innerHTML = [...txs].reverse().map(t => `
       <div class="void-item" onclick="voidTransaction(${t.id})">
         <div class="void-item-info">
-          <div class="void-item-name">${t.name}</div>
+          <div class="void-item-name">${t.nameTH ? t.nameTH + ' / ' : ''}${t.name}</div>
           <div class="void-item-meta">${t.time}${t.note ? ' · ' + t.note : ''}</div>
         </div>
-        <div class="void-item-amt">$${t.total.toLocaleString()}</div>
+        <div class="void-item-amt">฿${t.total.toLocaleString()}</div>
       </div>
     `).join('');
   }
