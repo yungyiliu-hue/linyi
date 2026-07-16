@@ -809,10 +809,7 @@
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title"><span>📋</span> รายการ / 交易記錄</div>
-          <div class="tab-bar" style="border:none;margin:0">
-            <div class="tab active" onclick="switchView('daily',this)">วันนี้ / 今日</div>
-            <div class="tab" onclick="switchView('monthly',this)">รายงาน / 月報</div>
-          </div>
+
         </div>
         <div class="panel-body">
 
@@ -824,47 +821,7 @@
           </div>
 
           <!-- Monthly view -->
-          <div id="monthlyView" class="hidden">
-            <div class="month-bar">
-              <span id="monthLabel"></span>
-              <div class="nav">
-                <button onclick="changeMonth(-1)">‹</button>
-                <button onclick="changeMonth(1)">›</button>
-                <div class="export-btns" style="margin-left:8px">
-                  <button class="export-btn csv" onclick="exportCSV()">📄 CSV</button>
-                  <button class="export-btn xlsx" onclick="exportXLSX()">📊 Excel</button>
-                  <button class="export-btn detail" onclick="exportDetailCSV()">🗂 明細</button>
-                </div>
-              </div>
-            </div>
-            <div class="month-summary">
-              <div class="ms-card">
-                <div class="ms-label">รายรับ / 收入</div>
-                <div class="ms-val" id="mIncome" style="color:var(--green)">$0</div>
-              </div>
-              <div class="ms-card">
-                <div class="ms-label">ยกเลิก / 作廢金額</div>
-                <div class="ms-val" id="mExpense" style="color:var(--red)">$0</div>
-              </div>
-              <div class="ms-card">
-                <div class="ms-label">ยอดจริง / 實際收入</div>
-                <div class="ms-val" id="mNet" style="color:var(--accent)">$0</div>
-              </div>
-            </div>
-            <table class="daily-table">
-              <thead>
-                <tr>
-                  <th>วันที่</th>
-                  <th>รายรับ / 收入</th>
-                  <th>ยกเลิก / 作廢</th>
-                  <th>กำไร</th>
-                </tr>
-              </thead>
-              <tbody id="monthTableBody"></tbody>
-            </table>
-          </div>
-
-        </div>
+          
       </div>
     </div>
 
@@ -1748,17 +1705,7 @@ function doExportXLSX() {
   XLSX.writeFile(wb, `洗車場_月報_${ym}.xlsx`);
 }
 
-// ─── View switch ─────────────────────────────────────────
-function switchView(view, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('dailyView').classList.toggle('hidden', view !== 'daily');
-  document.getElementById('monthlyView').classList.toggle('hidden', view !== 'monthly');
-  if (view === 'monthly') {
-    currentMonthView = currentDate.slice(0,7);
-    renderMonthlyView();
-  }
-}
+
 </script>
 </body>
 </html>
