@@ -472,17 +472,17 @@
   }
   .pay-btn {
     padding: 12px 8px; border-radius: 10px;
-    border: 2px solid var(--border);
-    background: var(--surface2); color: var(--muted);
+    border: 2.5px solid #f97316;
+    background: #fff7ed; color: #c2410c;
     cursor: pointer; font-size: 14px; font-weight: 700;
     font-family: 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
     transition: all 0.15s; text-align: center;
   }
   .pay-btn.active {
-    border-color: var(--accent); background: var(--accent);
-    color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+    border-color: #f97316; background: #f97316;
+    color: #fff; box-shadow: 0 4px 12px rgba(249,115,22,0.35);
   }
-  .pay-btn:hover { border-color: var(--accent); }
+  .pay-btn:hover { background: #f97316; color: #fff; }
 
   /* Stats grid 3 cols */
   .stat-sub-grid {
@@ -582,17 +582,17 @@
   }
   .pay-btn {
     padding: 12px 8px; border-radius: 10px;
-    border: 2px solid var(--border);
-    background: var(--surface2); color: var(--muted);
+    border: 2.5px solid #f97316;
+    background: #fff7ed; color: #c2410c;
     cursor: pointer; font-size: 14px; font-weight: 700;
     font-family: 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
     transition: all 0.15s; text-align: center;
   }
   .pay-btn.active {
-    border-color: var(--accent); background: var(--accent);
-    color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+    border-color: #f97316; background: #f97316;
+    color: #fff; box-shadow: 0 4px 12px rgba(249,115,22,0.35);
   }
-  .pay-btn:hover { border-color: var(--accent); }
+  .pay-btn:hover { background: #f97316; color: #fff; }
 
   /* Stats grid 3 cols */
   .stat-sub-grid {
@@ -939,8 +939,8 @@
           </div>
           <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:0.3px">วิธีชำระเงิน / 付款方式</div>
           <div class="pay-toggle">
-            <button class="pay-btn active" id="payCash" onclick="setPayment('cash')">💵 CASH<br><span style="font-size:11px;font-weight:500">เงินสด / 現金</span></button>
-            <button class="pay-btn" id="payScan" onclick="setPayment('scan')">📱 SCAN<br><span style="font-size:11px;font-weight:500">สแกน / 掃碼</span></button>
+            <button class="pay-btn" id="payCash" onclick="setPayment('cash')"><span style="font-size:32px;display:block;margin-bottom:4px">💵</span>CASH<br><span style="font-size:11px;font-weight:500">เงินสด / 現金</span></button>
+            <button class="pay-btn" id="payScan" onclick="setPayment('scan')"><span style="font-size:32px;display:block;margin-bottom:4px">📱</span>SCAN<br><span style="font-size:11px;font-weight:500">สแกน / 掃碼</span></button>
           </div>
           <div style="display:flex;gap:10px;margin-top:4px">
             <button class="submit-btn" onclick="addTransaction()" style="flex:2">✅ บันทึก / 新增收入</button>
@@ -953,8 +953,8 @@
   </div>
 
   <!-- Stats (bottom) -->
-  <div class="stats-grid" style="margin-top:16px;margin-bottom:0">
-    <div class="stat-card" style="--accent-color: var(--accent)">
+  <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+    <div class="stat-card" style="--accent-color: var(--accent);width:100%">
       <div class="label">ยอดของฉัน / 我的記帳金額</div>
       <div class="value" id="statIncomeCnt">฿0</div>
       <div class="sub" id="statIncomeSub" style="font-size:15px;font-weight:800;color:#0f172a;margin-top:4px">—</div>
@@ -973,7 +973,7 @@
         </div>
       </div>
     </div>
-    <div class="stat-card" style="--accent-color: var(--yellow)">
+    <div class="stat-card" style="--accent-color: var(--yellow);width:100%">
       <div class="label">ยอดวันนี้ / 今日總金額</div>
       <div class="value" id="statMonth">฿0</div>
       <div class="sub" id="statMonthSub">รวมทุกคน / 所有員工</div>
@@ -1090,7 +1090,7 @@ let currentMonthView = currentDate.slice(0,7);
 let currentType = 'income';
 let selectedCat = '';
 let currentCarSize = 'small';
-let currentPayment = 'cash';
+let currentPayment = '';
 let appliedCoupon = 0;
 let data = {};
 let gasUrl = HARDCODED_GAS_URL;
@@ -1301,6 +1301,7 @@ function npClear() { numpadValue = ''; npRender(); }
 
 function addTransaction() {
   if (!checkAuthor()) return;
+  if (!currentPayment) { showToast('⚠️ กรุณาเลือกวิธีชำระ / 請選擇付款方式！'); return; }
 
   const name = document.getElementById('txName').value.trim();
   const amount = parseFloat(document.getElementById('txAmount').value);
@@ -1348,8 +1349,10 @@ function addTransaction() {
   numpadValue = ''; npRender();
   document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('selected'));
   // Keep coupon active for next transaction
-  // Reset payment to cash
-  setPayment('cash');
+  // Reset payment selection
+  currentPayment = '';
+  document.getElementById('payCash').classList.remove('active');
+  document.getElementById('payScan').classList.remove('active');
 }
 
 // ─── Void ────────────────────────────────────────────────
