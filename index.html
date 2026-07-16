@@ -496,6 +496,22 @@
   .stat-sub .ss-label { font-size: 10px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
   .stat-sub .ss-val { font-size: 14px; font-weight: 800; }
 
+
+  .staff-pick-btn {
+    width: 100%; padding: 16px;
+    background: var(--surface2); border: 2px solid var(--border);
+    border-radius: 12px; font-size: 18px; font-weight: 700;
+    color: var(--text); cursor: pointer;
+    font-family: 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
+    transition: all 0.15s; text-align: center;
+  }
+  .staff-pick-btn:hover, .staff-pick-btn:active {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .staff-pick-btn.current {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+
   /* Toast */
   .toast {
     position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-100px);
@@ -605,6 +621,22 @@
   }
   .stat-sub .ss-label { font-size: 10px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
   .stat-sub .ss-val { font-size: 14px; font-weight: 800; }
+
+
+  .staff-pick-btn {
+    width: 100%; padding: 16px;
+    background: var(--surface2); border: 2px solid var(--border);
+    border-radius: 12px; font-size: 18px; font-weight: 700;
+    color: var(--text); cursor: pointer;
+    font-family: 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
+    transition: all 0.15s; text-align: center;
+  }
+  .staff-pick-btn:hover, .staff-pick-btn:active {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .staff-pick-btn.current {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
 
   /* Toast */
   .toast {
@@ -1231,7 +1263,7 @@ function setType(type, el) {
 // ─── Add transaction ────────────────────────────────────
 function checkAuthor() {
   if (!authorName || !authorName.trim()) {
-    showToast('⚠️ กรุณาตั้งชื่อก่อน / 請先設定名稱！');
+    showToast('⚠️ กรุณาเลือกพนักงานก่อน / 請先選擇員工！');
     openSetupModal();
     return false;
   }
@@ -1382,7 +1414,7 @@ function initSyncBar() {
     if (banner) banner.remove();
   } else {
     status.innerHTML = '';
-    if (disp) disp.textContent = 'ตั้งชื่อ / 設定名稱';
+    if (disp) disp.textContent = 'เลือกพนักงาน / 選擇員工';
     // first-time banner
     let banner = document.getElementById('nameBanner');
     if (!banner) {
@@ -1447,7 +1479,10 @@ async function syncToSheets(showAlert) {
 }
 
 function openSetupModal() {
-  document.getElementById('authorName').value = authorName;
+  // Highlight current staff
+  document.querySelectorAll('.staff-pick-btn').forEach(b => {
+    b.classList.toggle('current', b.textContent.includes(authorName) && authorName);
+  });
   document.getElementById('modalOverlay').classList.remove('hidden');
 }
 function closeSetupModal() {
