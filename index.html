@@ -464,6 +464,38 @@
   .np-btn.np-del { background: #fef9c3; border-color: #fde047; color: #854d0e; font-size: 18px; }
   .np-btn.np-del:active { background: #eab308; color: #fff; }
 
+
+  /* Payment method toggle */
+  .pay-toggle {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 14px;
+  }
+  .pay-btn {
+    padding: 12px 8px; border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--surface2); color: var(--muted);
+    cursor: pointer; font-size: 14px; font-weight: 700;
+    font-family: 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
+    transition: all 0.15s; text-align: center;
+  }
+  .pay-btn.active {
+    border-color: var(--accent); background: var(--accent);
+    color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+  }
+  .pay-btn:hover { border-color: var(--accent); }
+
+  /* Stats grid 3 cols */
+  .stat-sub-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px; margin-top: 8px;
+  }
+  .stat-sub {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; text-align: center;
+  }
+  .stat-sub .ss-label { font-size: 10px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+  .stat-sub .ss-val { font-size: 14px; font-weight: 800; }
+
   /* Toast */
   .toast {
     position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-100px);
@@ -541,6 +573,38 @@
   .np-btn.np-clear:active { background: #dc2626; color: #fff; }
   .np-btn.np-del { background: #fef9c3; border-color: #fde047; color: #854d0e; font-size: 18px; }
   .np-btn.np-del:active { background: #eab308; color: #fff; }
+
+
+  /* Payment method toggle */
+  .pay-toggle {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 14px;
+  }
+  .pay-btn {
+    padding: 12px 8px; border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--surface2); color: var(--muted);
+    cursor: pointer; font-size: 14px; font-weight: 700;
+    font-family: 'Noto Sans Thai', 'Noto Sans TC', sans-serif;
+    transition: all 0.15s; text-align: center;
+  }
+  .pay-btn.active {
+    border-color: var(--accent); background: var(--accent);
+    color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+  }
+  .pay-btn:hover { border-color: var(--accent); }
+
+  /* Stats grid 3 cols */
+  .stat-sub-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px; margin-top: 8px;
+  }
+  .stat-sub {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; text-align: center;
+  }
+  .stat-sub .ss-label { font-size: 10px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+  .stat-sub .ss-val { font-size: 14px; font-weight: 800; }
 
   /* Toast */
   .toast {
@@ -873,6 +937,11 @@
             </div>
             <input type="hidden" id="txNote">
           </div>
+          <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:0.3px">วิธีชำระเงิน / 付款方式</div>
+          <div class="pay-toggle">
+            <button class="pay-btn active" id="payCash" onclick="setPayment('cash')">💵 CASH<br><span style="font-size:11px;font-weight:500">เงินสด / 現金</span></button>
+            <button class="pay-btn" id="payScan" onclick="setPayment('scan')">📱 SCAN<br><span style="font-size:11px;font-weight:500">สแกน / 掃碼</span></button>
+          </div>
           <div style="display:flex;gap:10px;margin-top:4px">
             <button class="submit-btn" onclick="addTransaction()" style="flex:2">✅ บันทึก / 新增收入</button>
             <button class="void-btn" onclick="openVoidMode()">❌ ยกเลิก / 作廢</button>
@@ -889,11 +958,39 @@
       <div class="label">ยอดของฉัน / 我的記帳金額</div>
       <div class="value" id="statIncomeCnt">฿0</div>
       <div class="sub" id="statIncomeSub" style="font-size:15px;font-weight:800;color:#0f172a;margin-top:4px">—</div>
+      <div class="stat-sub-grid" style="margin-top:10px">
+        <div class="stat-sub">
+          <div class="ss-label">📱 SCAN</div>
+          <div class="ss-val" id="myStatScan" style="color:var(--accent)">฿0</div>
+        </div>
+        <div class="stat-sub">
+          <div class="ss-label">💵 CASH</div>
+          <div class="ss-val" id="myStatCash" style="color:var(--green)">฿0</div>
+        </div>
+        <div class="stat-sub">
+          <div class="ss-label">📊 รวม/總計</div>
+          <div class="ss-val" id="myStatTotal" style="color:var(--text)">฿0</div>
+        </div>
+      </div>
     </div>
     <div class="stat-card" style="--accent-color: var(--yellow)">
       <div class="label">ยอดวันนี้ / 今日總金額</div>
       <div class="value" id="statMonth">฿0</div>
       <div class="sub" id="statMonthSub">รวมทุกคน / 所有員工</div>
+      <div class="stat-sub-grid" style="margin-top:10px">
+        <div class="stat-sub">
+          <div class="ss-label">📱 SCAN</div>
+          <div class="ss-val" id="dayStatScan" style="color:var(--accent)">฿0</div>
+        </div>
+        <div class="stat-sub">
+          <div class="ss-label">💵 CASH</div>
+          <div class="ss-val" id="dayStatCash" style="color:var(--green)">฿0</div>
+        </div>
+        <div class="stat-sub">
+          <div class="ss-label">📊 รวม/總計</div>
+          <div class="ss-val" id="dayStatTotal" style="color:var(--text)">฿0</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -949,6 +1046,7 @@ const GAS_CODE = `function doPost(e) {
           t.id, t.time, author||'',
           t.type==='income' ? 'รายรับ/收入' : t.type==='void' ? 'ยกเลิก/作廢' : 'รายจ่าย/支出',
           t.nameTH ? (t.nameTH + ' / ' + t.name) : t.name,
+          t.payment === 'scan' ? 'SCAN/สแกน' : 'CASH/เงินสด',
           t.amount, t.qty, t.total, t.cat||'', t.note||''
         ]);
       }
@@ -992,6 +1090,7 @@ let currentMonthView = currentDate.slice(0,7);
 let currentType = 'income';
 let selectedCat = '';
 let currentCarSize = 'small';
+let currentPayment = 'cash';
 let appliedCoupon = 0;
 let data = {};
 let gasUrl = HARDCODED_GAS_URL;
@@ -1070,6 +1169,12 @@ function renderHeaderDate() {
 }
 
 // ─── Services ────────────────────────────────────────────
+function setPayment(method) {
+  currentPayment = method;
+  document.getElementById('payCash').classList.toggle('active', method === 'cash');
+  document.getElementById('payScan').classList.toggle('active', method === 'scan');
+}
+
 function setCarSize(size) {
   currentCarSize = size;
   document.getElementById('btnSmall').classList.toggle('active', size === 'small');
@@ -1217,6 +1322,7 @@ function addTransaction() {
     total: amount * qty,
     note: [couponNote, note].filter(Boolean).join(' '),
     cat: '',
+    payment: currentPayment,
     author: authorName || '',
     time: bkkTime(),
     voided: false,
@@ -1242,6 +1348,8 @@ function addTransaction() {
   numpadValue = ''; npRender();
   document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('selected'));
   // Keep coupon active for next transaction
+  // Reset payment to cash
+  setPayment('cash');
 }
 
 // ─── Void ────────────────────────────────────────────────
@@ -1452,22 +1560,28 @@ function renderDay(newestId) {
 // ─── Stats ───────────────────────────────────────────────
 function renderStats() {
   const txs = getDayData(currentDate);
-  // My amount: current author's valid income
-  const myAmount = txs
-    .filter(t => t.type === 'income' && !t.voided && t.author === authorName)
-    .reduce((s, t) => s + t.total, 0);
-  document.getElementById('statIncomeCnt').textContent = '฿' + myAmount.toLocaleString();
+  const myTxs = txs.filter(t => t.type === 'income' && !t.voided && t.author === authorName);
+  const myTotal = myTxs.reduce((s,t) => s+t.total, 0);
+  const myScan  = myTxs.filter(t=>t.payment==='scan').reduce((s,t)=>s+t.total,0);
+  const myCash  = myTxs.filter(t=>t.payment!=='scan').reduce((s,t)=>s+t.total,0);
+  document.getElementById('statIncomeCnt').textContent = '฿' + myTotal.toLocaleString();
   document.getElementById('statIncomeSub').textContent = authorName || '—';
+  document.getElementById('myStatScan').textContent  = '฿' + myScan.toLocaleString();
+  document.getElementById('myStatCash').textContent  = '฿' + myCash.toLocaleString();
+  document.getElementById('myStatTotal').textContent = '฿' + myTotal.toLocaleString();
 }
 
 function renderMonthStats() {
-  // Today total: all staff
   const txs = getDayData(currentDate);
-  const todayTotal = txs
-    .filter(t => t.type === 'income' && !t.voided)
-    .reduce((s, t) => s + t.total, 0);
-  document.getElementById('statMonth').textContent = '฿' + todayTotal.toLocaleString();
+  const validTxs = txs.filter(t => t.type === 'income' && !t.voided);
+  const dayTotal = validTxs.reduce((s,t)=>s+t.total,0);
+  const dayScan  = validTxs.filter(t=>t.payment==='scan').reduce((s,t)=>s+t.total,0);
+  const dayCash  = validTxs.filter(t=>t.payment!=='scan').reduce((s,t)=>s+t.total,0);
+  document.getElementById('statMonth').textContent = '฿' + dayTotal.toLocaleString();
   document.getElementById('statMonthSub').textContent = 'รวมทุกคน / 所有員工';
+  document.getElementById('dayStatScan').textContent  = '฿' + dayScan.toLocaleString();
+  document.getElementById('dayStatCash').textContent  = '฿' + dayCash.toLocaleString();
+  document.getElementById('dayStatTotal').textContent = '฿' + dayTotal.toLocaleString();
 }
 
 renderStats();
