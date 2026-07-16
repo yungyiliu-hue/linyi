@@ -824,13 +824,14 @@
 
   <!-- Name Modal -->
   <div class="modal-overlay hidden" id="modalOverlay">
-    <div class="modal" style="max-width:320px;padding:20px">
-      <h2 style="font-size:15px;margin-bottom:14px">👤 ตั้งชื่อพนักงาน / 設定員工名稱</h2>
-      <input class="modal-author-input" id="authorName" placeholder="เช่น: สมชาย, May / 例：小明" style="margin-bottom:14px;font-size:16px;padding:12px">
-      <div style="display:flex;gap:10px">
-        <button class="modal-cancel" onclick="closeSetupModal()" style="flex:1">ยกเลิก / 取消</button>
-        <button class="modal-save" onclick="saveSettings()" style="flex:2">บันทึก / 儲存</button>
+    <div class="modal" style="max-width:320px;padding:24px">
+      <h2 style="font-size:16px;margin-bottom:16px">👤 เลือกพนักงาน / 選擇員工</h2>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px" id="staffBtns">
+        <button class="staff-pick-btn" onclick="pickStaff('WAN')">👤 WAN</button>
+        <button class="staff-pick-btn" onclick="pickStaff('เหว่า')">👤 เหว่า</button>
+        <button class="staff-pick-btn" onclick="pickStaff('MANAGER')">👑 MANAGER</button>
       </div>
+      <button class="modal-cancel" onclick="closeSetupModal()" style="width:100%">ยกเลิก / 取消</button>
     </div>
   </div>
 
