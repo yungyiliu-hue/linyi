@@ -836,27 +836,8 @@
   </div>
 
   <!-- Main -->
-  <div class="main-grid">
-    <!-- Left: transactions -->
-    <div>
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title"><span>📋</span> รายการ / 交易記錄</div>
+  <div class="main-grid" style="grid-template-columns:1fr">
 
-        </div>
-        <div class="panel-body">
-
-          <!-- Daily view -->
-          <div id="dailyView">
-            <div class="tx-list" id="txList">
-              <div class="empty-state"><div class="icon">💧</div>ยังไม่มีรายการ<br>今日尚無記錄</div>
-            </div>
-          </div>
-
-          <!-- Monthly view -->
-          
-      </div>
-    </div>
 
     <!-- Right: add form -->
     <div style="display:flex;flex-direction:column;gap:16px">
@@ -939,6 +920,20 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Transaction list (bottom of form) -->
+  <div class="panel" style="margin-top:0">
+    <div class="panel-header">
+      <div class="panel-title"><span>📋</span> รายการ / 交易記錄</div>
+    </div>
+    <div class="panel-body">
+      <div id="dailyView">
+        <div class="tx-list" id="txList">
+          <div class="empty-state"><div class="icon">💧</div>ยังไม่มีรายการ<br>今日尚無記錄</div>
+        </div>
+      </div>
     </div>
   </div>
 
