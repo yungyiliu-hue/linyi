@@ -793,11 +793,9 @@
   </header>
 
   <!-- Date Nav -->
-  <div class="date-nav">
-    <button onclick="changeDate(-1)">‹</button>
-    <input type="date" id="dateInput" onchange="loadDay()">
-    <button onclick="changeDate(1)">›</button>
-    <button class="today-btn" onclick="goToday()">วันนี้ / 今天</button>
+  <div style="margin-bottom:18px;display:flex;align-items:center;gap:10px">
+    <div style="background:#f97316;border-radius:10px;padding:10px 18px;font-size:15px;font-weight:700;color:#fff" id="dateDisplay">—</div>
+    <div style="background:#1e293b;border-radius:10px;padding:10px 18px;font-size:15px;font-weight:700;color:#fff;font-family:'DM Mono',monospace" id="dateDisplayISO">—</div>
   </div>
 
   <!-- Sync Bar -->
@@ -1112,8 +1110,7 @@ function getDayData(d) {
 // ─── Init ────────────────────────────────────────────────
 loadStorage();
 
-// Date input
-document.getElementById('dateInput').value = currentDate;
+// Date display
 renderHeaderDate();
 renderServiceGrid();
 renderCatChips();
@@ -1122,23 +1119,10 @@ renderMonthStats();
 initSyncBar();
 
 // ─── Date Nav ────────────────────────────────────────────
-function changeDate(delta) {
-  const d = new Date(currentDate + 'T00:00:00');
-  d.setDate(d.getDate() + delta);
-  currentDate = d.toISOString().slice(0,10);
-  document.getElementById('dateInput').value = currentDate;
-  loadDay();
-}
-function loadDay() {
-  currentDate = document.getElementById('dateInput').value;
-  renderHeaderDate();
-  renderDay();
-  renderStats();
-  renderMonthStats();
-}
+function changeDate(delta) { /* date nav removed */ }
+function loadDay() { /* date nav removed */ }
 function goToday() {
   currentDate = todayStr();
-  document.getElementById('dateInput').value = currentDate;
   renderHeaderDate();
   renderDay();
   renderStats();
@@ -1146,11 +1130,13 @@ function goToday() {
 }
 
 function renderHeaderDate() {
-  const el = document.getElementById('headerDate');
+  const el = document.getElementById('dateDisplay');
+  const el2 = document.getElementById('dateDisplayISO');
   if (!el) return;
   const d = new Date(currentDate + 'T00:00:00');
   const opts = { year:'numeric', month:'long', day:'numeric', weekday:'long' };
-  el.textContent = d.toLocaleDateString('zh-TW', opts);
+  el.textContent = d.toLocaleDateString('th-TH', opts);
+  if (el2) el2.textContent = currentDate;
 }
 
 // ─── Services ────────────────────────────────────────────
@@ -1657,7 +1643,6 @@ function renderMonthlyView() {
 
 function jumpToDate(d) {
   currentDate = d;
-  document.getElementById('dateInput').value = d;
   renderHeaderDate();
   renderDay();
   renderStats();
