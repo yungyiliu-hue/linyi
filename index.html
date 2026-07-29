@@ -1371,6 +1371,11 @@ function voidTransaction(id) {
   const tx = txs.find(t => t.id === id);
   if (!tx) return;
 
+  // Find original row number
+  const validTxs = txs.filter(t => t.type === 'income');
+  const txIndex = validTxs.findIndex(t => t.id === id);
+  const rowNum = txIndex >= 0 ? txIndex + 1 : '?';
+
   // Add a void record
   const voidTx = {
     id: Date.now(),
@@ -1380,8 +1385,9 @@ function voidTransaction(id) {
     amount: -tx.amount,
     qty: tx.qty,
     total: -tx.total,
-    note: `ยกเลิก/作廢`,
+    note: `ยกเลิก #${rowNum} / 作廢第${rowNum}筆`,
     cat: '',
+    payment: tx.payment || 'cash',
     author: authorName || '',
     time: bkkTime(),
     voided: false,
