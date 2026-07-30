@@ -983,18 +983,18 @@
 // ─── Data ───────────────────────────────────────────────
 const SERVICES = {
   small: [
-    { name: 'ล้างรถเครื่อง', sub: '機器洗車 🎉FREE', nameCN: '機器洗車（小車）', price: 0 },
-    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵', nameCN: '機器洗車+吸塵（小車）', price: 100 },
-    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（小車）', price: 60 },
-    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵', nameCN: '水刀洗車+吸塵（小車）', price: 160 },
+    { name: 'ล้างรถเครื่อง', sub: '機器洗車', nameCN: '機器洗車（小車）', price: 100 },
+    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵套餐', nameCN: '機器洗車+吸塵（小車）', price: 180 },
+    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（小車）', price: 160 },
+    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵套餐', nameCN: '水刀洗車+吸塵（小車）', price: 230 },
     { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（小車）', price: 100 },
     { name: 'เคลือบแว็กซ์', sub: '打蠟', nameCN: '打蠟（小車）', price: 800 },
   ],
   large: [
-    { name: 'ล้างรถเครื่อง', sub: '機器洗車 🎉FREE', nameCN: '機器洗車（大車）', price: 0 },
-    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵', nameCN: '機器洗車+吸塵（大車）', price: 120 },
-    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（大車）', price: 80 },
-    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵', nameCN: '水刀洗車+吸塵（大車）', price: 200 },
+    { name: 'ล้างรถเครื่อง', sub: '機器洗車', nameCN: '機器洗車（大車）', price: 120 },
+    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵套餐', nameCN: '機器洗車+吸塵（大車）', price: 230 },
+    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（大車）', price: 180 },
+    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵套餐', nameCN: '水刀洗車+吸塵（大車）', price: 280 },
     { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（大車）', price: 120 },
     { name: 'เคลือบแว็กซ์', sub: '打蠟', nameCN: '打蠟（大車）', price: 1000 },
   ],
@@ -1280,7 +1280,7 @@ function addTransaction() {
   const note = document.getElementById('txNote').value.trim();
 
   if (!name) { alert('กรุณาเลือกบริการ / 請選擇服務'); return; }
-  if (!amount && amount !== 0) { alert('กรุณากรอกจำนวนเงิน / 請填寫金額'); return; }
+  if (!amount || amount <= 0) { alert('กรุณากรอกจำนวนเงิน / 請填寫金額'); return; }
 
   const couponNote = appliedCoupon > 0 ? `[คูปอง-฿${appliedCoupon}]` : '';
   const nameTH = document.getElementById('txNameTH').value || '';
