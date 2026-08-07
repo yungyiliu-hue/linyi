@@ -183,7 +183,7 @@
 
   /* Car size toggle */
   .car-size-toggle {
-    display: grid; grid-template-columns: 1fr 1fr;
+    display: grid; grid-template-columns: 2fr 2fr 1fr;
     gap: 8px; margin-bottom: 14px;
   }
   .size-btn {
@@ -851,12 +851,17 @@
           <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:0.3px">เลือกประเภทรถ / 選擇車型</div>
           <div class="car-size-toggle">
             <button class="size-btn active" id="btnSmall" onclick="setCarSize('small')">
-              <span class="size-icon">🚗</span>
-              <span class="size-text"><strong>รถเล็ก</strong><span>小車 ต่ำกว่า 1.7m</span></span>
+              <span class="size-icon">🚗🚕</span>
+              <span class="size-text"><strong style="font-size:16px">รถเล็ก</strong><span>小車&計程車 ต่ำกว่า 1.7m</span></span>
             </button>
             <button class="size-btn" id="btnLarge" onclick="setCarSize('large')">
               <span class="size-icon">🚙</span>
-              <span class="size-text"><strong>รถใหญ่</strong><span>大車 สูงกว่า 1.7m</span></span>
+              <span class="size-text"><strong style="font-size:16px">รถใหญ่</strong><span>大車 สูงกว่า 1.7m</span></span>
+            </button>
+            <button class="size-btn" id="btnMoto" onclick="setCarSize('moto')" style="flex-direction:column;align-items:center;padding:10px 4px;text-align:center">
+              <span style="font-size:32px">🏍️</span>
+              <span style="font-size:13px;font-weight:700;margin-top:2px">มอเตอร์</span>
+              <span style="font-size:11px;color:var(--muted)">機車</span>
             </button>
           </div>
           <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;letter-spacing:0.3px">เลือกบริการ / 選擇服務</div>
@@ -983,20 +988,29 @@
 // ─── Data ───────────────────────────────────────────────
 const SERVICES = {
   small: [
-    { name: 'ล้างรถเครื่อง', sub: '機器洗車', nameCN: '機器洗車（小車）', price: 100 },
-    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵套餐', nameCN: '機器洗車+吸塵（小車）', price: 180 },
-    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（小車）', price: 130 },
-    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵套餐', nameCN: '水刀洗車+吸塵（小車）', price: 200 },
-    { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（小車）', price: 100 },
-    { name: 'เคลือบแว็กซ์', sub: '打蠟', nameCN: '打蠟（小車）', price: 800 },
+    { name: 'ล้างรถเครื่อง', sub: '機器洗車', nameCN: '機器洗車（小車）', price: 60, icon: '' },
+    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵套餐', nameCN: '機器洗車+吸塵（小車）', price: 150, icon: '' },
+    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（小車）', price: 90, icon: '' },
+    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵套餐', nameCN: '水刀洗車+吸塵（小車）', price: 180, icon: '' },
+    { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（小車）', price: 90, icon: '' },
+    { name: 'สมาชิกรายเดือน', sub: '包月 ฿399', nameCN: '包月（小車）', price: 399, isMembership: true, icon: '📅' },
+    { name: '🔥 สมาชิก 2 เดือน', sub: '八月限時฿499', nameCN: '限時包月兩個月（小車）', price: 499, isMembership: true, icon: '📅📅🔥' },
+    { name: 'ล้างรถสมาชิก', sub: '包月洗車 ฿0', nameCN: '包月洗車（小車）', price: 0, isMemberWash: true, icon: '🔍' },
   ],
   large: [
-    { name: 'ล้างรถเครื่อง', sub: '機器洗車', nameCN: '機器洗車（大車）', price: 120 },
-    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵套餐', nameCN: '機器洗車+吸塵（大車）', price: 230 },
-    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（大車）', price: 150 },
-    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵套餐', nameCN: '水刀洗車+吸塵（大車）', price: 250 },
-    { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（大車）', price: 120 },
-    { name: 'เคลือบแว็กซ์', sub: '打蠟', nameCN: '打蠟（大車）', price: 1000 },
+    { name: 'ล้างรถเครื่อง', sub: '機器洗車', nameCN: '機器洗車（大車）', price: 70, icon: '' },
+    { name: 'ล้างรถเครื่อง+ดูดฝุ่น', sub: '機器+吸塵套餐', nameCN: '機器洗車+吸塵（大車）', price: 170, icon: '' },
+    { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（大車）', price: 100, icon: '' },
+    { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵套餐', nameCN: '水刀洗車+吸塵（大車）', price: 200, icon: '' },
+    { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（大車）', price: 100, icon: '' },
+    { name: 'สมาชิกรายเดือน', sub: '包月 ฿499', nameCN: '包月（大車）', price: 499, isMembership: true, icon: '📅' },
+    { name: '🔥 สมาชิก 2 เดือน', sub: '八月限時฿599', nameCN: '限時包月兩個月（大車）', price: 599, isMembership: true, icon: '📅📅🔥' },
+    { name: 'ล้างรถสมาชิก', sub: '包月洗車 ฿0', nameCN: '包月洗車（大車）', price: 0, isMemberWash: true, icon: '🔍' },
+  ],
+  moto: [
+    { name: 'ล้างรถมอเตอร์ไซค์ 100cc', sub: '機車 100cc', nameCN: '機車洗車 100cc', price: 150, icon: '' },
+    { name: 'ล้างรถมอเตอร์ไซค์ 150cc', sub: '機車 150cc', nameCN: '機車洗車 150cc', price: 200, icon: '' },
+    { name: 'ล้างรถมอเตอร์ไซค์ 200cc', sub: '機車 200cc', nameCN: '機車洗車 200cc', price: 250, icon: '' },
   ],
 };
 const EXPENSE_CATS = ['水電費','薪資','清潔耗材','設備維修','油料','租金','雜費'];
@@ -1150,10 +1164,15 @@ function setCarSize(size) {
   currentCarSize = size;
   document.getElementById('btnSmall').classList.toggle('active', size === 'small');
   document.getElementById('btnLarge').classList.toggle('active', size === 'large');
+  document.getElementById('btnMoto').classList.toggle('active', size === 'moto');
   document.getElementById('txName').value = '';
   document.getElementById('txDisplayName') && (document.getElementById('txDisplayName').value = '');
   document.getElementById('txAmount').value = '';
   document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('selected'));
+  // Unlock coupon when switching car type
+  const couponBtn2 = document.querySelector('.coupon-btn:not(#couponClearBtn)');
+  if (couponBtn2) { couponBtn2.disabled = false; couponBtn2.style.opacity = '1'; couponBtn2.style.cursor = 'pointer'; }
+  document.querySelector('.pay-toggle').style.display = 'grid';
   renderServiceGrid();
 }
 
@@ -1193,6 +1212,7 @@ function renderServiceGrid() {
   const list = SERVICES[currentCarSize];
   g.innerHTML = list.map((s, i) => `
     <div class="service-btn" onclick="selectService(${i})">
+      <div style="font-size:28px;margin-bottom:4px;line-height:1">${s.icon || ''}</div>
       <div class="s-name">${s.name}</div>
       <div class="s-row2">
         <div class="s-sub">${s.sub}</div>
@@ -1209,10 +1229,30 @@ function selectService(i) {
   document.getElementById('txName').value = s.nameCN;
   document.getElementById('txNameTH').value = `${s.name} (${sizeLabelTH})`;
   document.getElementById('txDisplayName').value = `${s.name} (${sizeLabelTH}) / ${s.sub}（${sizeLabel}）`;
-  const finalPrice = Math.max(0, s.price - appliedCoupon);
   const el = document.getElementById('txAmount');
-  el.value = finalPrice;
-  el.dataset.base = s.price;
+
+  if (s.isMemberWash) {
+    document.querySelector('.pay-toggle').style.display = 'none';
+    el.value = 0;
+    el.dataset.base = 0;
+    currentPayment = 'cash';
+    const cb1 = document.querySelector('.coupon-btn:not(#couponClearBtn)');
+    if (cb1) { cb1.disabled = true; cb1.style.opacity = '0.4'; cb1.style.cursor = 'not-allowed'; }
+  } else if (s.isMembership) {
+    document.querySelector('.pay-toggle').style.display = 'grid';
+    if (appliedCoupon > 0) { showToast('⚠️ คูปองไม่สามารถใช้กับสมาชิก / 包月不適用優惠券！'); applyCoupon(0); }
+    const cb2 = document.querySelector('.coupon-btn:not(#couponClearBtn)');
+    if (cb2) { cb2.disabled = true; cb2.style.opacity = '0.4'; cb2.style.cursor = 'not-allowed'; }
+    el.value = s.price;
+    el.dataset.base = s.price;
+  } else {
+    document.querySelector('.pay-toggle').style.display = 'grid';
+    const cb3 = document.querySelector('.coupon-btn:not(#couponClearBtn)');
+    if (cb3) { cb3.disabled = false; cb3.style.opacity = '1'; cb3.style.cursor = 'pointer'; }
+    const finalPrice = Math.max(0, s.price - appliedCoupon);
+    el.value = finalPrice;
+    el.dataset.base = s.price;
+  }
 }
 
 function renderCatChips() {
@@ -1270,9 +1310,41 @@ function npInput(v) { numpadValue += v; npRender(); }
 function npDelete() { numpadValue = numpadValue.slice(0,-1); npRender(); }
 function npClear() { numpadValue = ''; npRender(); }
 
-function addTransaction() {
+async function addTransaction() {
   if (!checkAuthor()) return;
-  if (!currentPayment) { showToast('⚠️ กรุณาเลือกวิธีชำระ / 請選擇付款方式！'); return; }
+
+  const selectedService = SERVICES[currentCarSize].find(s => s.nameCN === document.getElementById('txName').value);
+  const isMemberWash = selectedService && selectedService.isMemberWash;
+
+  // Member wash: verify plate before allowing payment selection check
+  if (isMemberWash) {
+    const plate = numpadValue.trim();
+    if (!plate) {
+      showToast('⚠️ กรุณากรอกทะเบียน / 請輸入車牌號碼！');
+      return;
+    }
+    // Query member
+    showToast('🔍 กำลังตรวจสอบ / 查詢中...');
+    try {
+      const res = await fetch(gasUrl + '?action=checkMember&plate=' + encodeURIComponent(plate));
+      const result = await res.json();
+      if (result.status === 'not_found') {
+        showToast('❌ ไม่พบสมาชิก / 查無此會員：' + plate);
+        return;
+      }
+      if (result.status === 'expired') {
+        showToast('❌ หมดอายุ / 包月已到期：' + result.endDate);
+        return;
+      }
+      // Valid member - show info and proceed
+      showToast('✅ ' + plate + ' | ' + result.plan + ' | ถึง/到期：' + result.endDate + '（' + result.daysLeft + ' วัน/天）');
+    } catch(err) {
+      showToast('⚠️ ตรวจสอบไม่ได้ / 查詢失敗，請確認網路');
+      return;
+    }
+  } else {
+    if (!currentPayment) { showToast('⚠️ กรุณาเลือกวิธีชำระ / 請選擇付款方式！'); return; }
+  }
 
   const name = document.getElementById('txName').value.trim();
   const amount = parseFloat(document.getElementById('txAmount').value);
@@ -1280,7 +1352,8 @@ function addTransaction() {
   const note = document.getElementById('txNote').value.trim();
 
   if (!name) { alert('กรุณาเลือกบริการ / 請選擇服務'); return; }
-  if (!amount || amount <= 0) { alert('กรุณากรอกจำนวนเงิน / 請填寫金額'); return; }
+  if (!isMemberWash && (!amount || amount <= 0)) { alert('กรุณากรอกจำนวนเงิน / 請填寫金額'); return; }
+  if (isMemberWash && !currentPayment) { currentPayment = 'cash'; }
 
   const couponNote = appliedCoupon > 0 ? `[คูปอง-฿${appliedCoupon}]` : '';
   const nameTH = document.getElementById('txNameTH').value || '';
@@ -1295,6 +1368,8 @@ function addTransaction() {
     note: [couponNote, note].filter(Boolean).join(' '),
     cat: '',
     payment: currentPayment,
+    isMembership: selectedService ? !!selectedService.isMembership : false,
+    isMemberWash: selectedService ? !!selectedService.isMemberWash : false,
     author: authorName || '',
     time: bkkTime(),
     voided: false,
