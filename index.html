@@ -1310,39 +1310,13 @@ function npInput(v) { numpadValue += v; npRender(); }
 function npDelete() { numpadValue = numpadValue.slice(0,-1); npRender(); }
 function npClear() { numpadValue = ''; npRender(); }
 
-async function addTransaction() {
+function addTransaction() {
   if (!checkAuthor()) return;
 
   const selectedService = SERVICES[currentCarSize].find(s => s.nameCN === document.getElementById('txName').value);
   const isMemberWash = selectedService && selectedService.isMemberWash;
 
-  // Member wash: verify plate before allowing payment selection check
-  if (isMemberWash) {
-    const plate = numpadValue.trim();
-    if (!plate) {
-      showToast('⚠️ กรุณากรอกทะเบียน / 請輸入車牌號碼！');
-      return;
-    }
-    // Query member
-    showToast('🔍 กำลังตรวจสอบ / 查詢中...');
-    try {
-      const res = await fetch(gasUrl + '?action=checkMember&plate=' + encodeURIComponent(plate));
-      const result = await res.json();
-      if (result.status === 'not_found') {
-        showToast('❌ ไม่พบสมาชิก / 查無此會員：' + plate);
-        return;
-      }
-      if (result.status === 'expired') {
-        showToast('❌ หมดอายุ / 包月已到期：' + result.endDate);
-        return;
-      }
-      // Valid member - show info and proceed
-      showToast('✅ ' + plate + ' | ' + result.plan + ' | ถึง/到期：' + result.endDate + '（' + result.daysLeft + ' วัน/天）');
-    } catch(err) {
-      showToast('⚠️ ตรวจสอบไม่ได้ / 查詢失敗，請確認網路');
-      return;
-    }
-  } else {
+  if (!isMemberWash) {
     if (!currentPayment) { showToast('⚠️ กรุณาเลือกวิธีชำระ / 請選擇付款方式！'); return; }
   }
 
@@ -1353,7 +1327,7 @@ async function addTransaction() {
 
   if (!name) { alert('กรุณาเลือกบริการ / 請選擇服務'); return; }
   if (!isMemberWash && (!amount || amount <= 0)) { alert('กรุณากรอกจำนวนเงิน / 請填寫金額'); return; }
-  if (isMemberWash && !currentPayment) { currentPayment = 'cash'; }
+  if (isMemberWash) { currentPayment = 'cash'; }
 
   const couponNote = appliedCoupon > 0 ? `[คูปอง-฿${appliedCoupon}]` : '';
   const nameTH = document.getElementById('txNameTH').value || '';
