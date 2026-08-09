@@ -438,13 +438,13 @@
   /* Numpad */
   .numpad-wrap { margin-bottom: 12px; }
   .numpad-display {
-    background: #cbd5e1; border: 1.5px solid #94a3b8;
+    background: #fff; border: 1.5px solid #94a3b8;
     border-radius: 10px; padding: 11px 14px;
     font-size: 16px; font-weight: 700; color: #0f172a;
     min-height: 46px; margin-bottom: 8px;
     letter-spacing: 2px;
   }
-  .numpad-display.empty { color: #94a3b8; font-weight: 400; letter-spacing: 0; }
+  .numpad-display.empty { color: #94a3b8; font-weight: 400; letter-spacing: 0; background: #fff; }
   .numpad-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -564,7 +564,7 @@
   /* Numpad */
   .numpad-wrap { margin-bottom: 12px; }
   .numpad-display {
-    background: #cbd5e1; border: 1.5px solid #94a3b8;
+    background: #fff; border: 1.5px solid #94a3b8;
     border-radius: 10px; padding: 11px 14px;
     font-size: 16px; font-weight: 700; color: #0f172a;
     min-height: 46px; margin-bottom: 8px;
@@ -885,7 +885,7 @@
           <div class="form-row">
             <div class="form-group">
               <label>จำนวนเงิน (฿) / 金額</label>
-              <input type="number" id="txAmount" placeholder="0" min="0" style="background:#cbd5e1;color:#0f172a;font-weight:700;font-size:15px">
+              <input type="number" id="txAmount" placeholder="0" min="0" readonly style="background:#cbd5e1;color:#0f172a;font-weight:700;font-size:15px;cursor:not-allowed">
             </div>
             <div class="form-group">
               <label>จำนวน / 數量</label>
@@ -993,7 +993,7 @@ const SERVICES = {
     { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（小車）', price: 90, icon: '' },
     { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵套餐', nameCN: '水刀洗車+吸塵（小車）', price: 180, icon: '' },
     { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（小車）', price: 90, icon: '' },
-    { name: 'เคลือบแว็กซ์', sub: '打蠟', nameCN: '打蠟（小車）', price: 800, icon: '' },
+    { name: 'เคลือบแว็กซ์/เคลือบแก้ว', sub: '打蠟或鍍膜（現場估價）', nameCN: '打蠟或鍍膜（小車）', price: null, icon: '' },
     { name: 'สมาชิกรายเดือน', sub: '包月 ฿399', nameCN: '包月（小車）', price: 399, isMembership: true, icon: '📅' },
     { name: '🔥 สมาชิก 2 เดือน', sub: '八月限時฿499', nameCN: '限時包月兩個月（小車）', price: 499, isMembership: true, icon: '📅📅🔥' },
     { name: 'ล้างรถสมาชิก', sub: '⚠️ กรุณาตรวจสอบวันหมดอายุ / 請確認包月證日期', nameCN: '包月洗車（小車）', price: 0, isMemberWash: true, icon: '🔍' },
@@ -1004,7 +1004,7 @@ const SERVICES = {
     { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（大車）', price: 100, icon: '' },
     { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵套餐', nameCN: '水刀洗車+吸塵（大車）', price: 200, icon: '' },
     { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（大車）', price: 100, icon: '' },
-    { name: 'เคลือบแว็กซ์', sub: '打蠟', nameCN: '打蠟（大車）', price: 1000, icon: '' },
+    { name: 'เคลือบแว็กซ์/เคลือบแก้ว', sub: '打蠟或鍍膜（現場估價）', nameCN: '打蠟或鍍膜（大車）', price: null, icon: '' },
     { name: 'สมาชิกรายเดือน', sub: '包月 ฿499', nameCN: '包月（大車）', price: 499, isMembership: true, icon: '📅' },
     { name: '🔥 สมาชิก 2 เดือน', sub: '八月限時฿599', nameCN: '限時包月兩個月（大車）', price: 599, isMembership: true, icon: '📅📅🔥' },
     { name: 'ล้างรถสมาชิก', sub: '⚠️ กรุณาตรวจสอบวันหมดอายุ / 請確認包月證日期', nameCN: '包月洗車（大車）', price: 0, isMemberWash: true, icon: '🔍' },
@@ -1233,6 +1233,20 @@ function selectService(i) {
   document.getElementById('txDisplayName').value = `${s.name} (${sizeLabelTH}) / ${s.sub}（${sizeLabel}）`;
   const el = document.getElementById('txAmount');
 
+  // If price is null, clear amount for manual input
+  if (s.price === null) {
+    el.value = '';
+    el.dataset.base = '';
+    el.style.background = '#fff7ed';
+    el.style.borderColor = '#f97316';
+    el.style.cursor = 'auto';
+    el.removeAttribute('readonly');
+    document.getElementById('txName').value = s.nameCN;
+    document.getElementById('txNameTH').value = s.name;
+    document.getElementById('txDisplayName').value = s.name + ' / ' + s.sub;
+    return;
+  }
+
   if (s.isMemberWash) {
     document.querySelector('.pay-toggle').style.display = 'none';
     el.value = 0;
@@ -1254,6 +1268,10 @@ function selectService(i) {
     const finalPrice = Math.max(0, s.price - appliedCoupon);
     el.value = finalPrice;
     el.dataset.base = s.price;
+    el.setAttribute('readonly', true);
+    el.style.background = '#cbd5e1';
+    el.style.borderColor = '';
+    el.style.cursor = 'not-allowed';
   }
 }
 
@@ -1364,8 +1382,13 @@ function addTransaction() {
   document.getElementById('txName').value = '';
   document.getElementById('txNameTH').value = '';
   document.getElementById('txDisplayName').value = '';
-  document.getElementById('txAmount').value = '';
-  document.getElementById('txAmount').dataset.base = '';
+  const amtEl = document.getElementById('txAmount');
+  amtEl.value = '';
+  amtEl.dataset.base = '';
+  amtEl.setAttribute('readonly', true);
+  amtEl.style.background = '#cbd5e1';
+  amtEl.style.borderColor = '';
+  amtEl.style.cursor = 'not-allowed';
   document.getElementById('txQty').value = '1';
   document.getElementById('txNote').value = '';
   numpadValue = ''; npRender();
