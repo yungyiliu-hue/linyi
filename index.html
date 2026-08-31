@@ -993,9 +993,8 @@ const SERVICES = {
     { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（小車）', price: 90, icon: '' },
     { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵套餐', nameCN: '水刀洗車+吸塵（小車）', price: 180, icon: '' },
     { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（小車）', price: 90, icon: '' },
-    { name: 'เคลือบแว็กซ์/เคลือบแก้ว', sub: '打蠟或鍍膜（現場估價）', nameCN: '打蠟或鍍膜（小車）', price: null, icon: '' },
-    { name: 'สมาชิกรายเดือน', sub: '包月 ฿399', nameCN: '包月（小車）', price: 399, isMembership: true, icon: '📅' },
-    { name: '🔥 สมาชิก 2 เดือน', sub: '八月限時฿499', nameCN: '限時包月兩個月（小車）', price: 499, isMembership: true, icon: '📅📅🔥' },
+    { name: 'เคลือบแว็กซ์/บริการอื่นๆ', sub: '打蠟/鍍膜/其他服務（現場估價）', nameCN: '打蠟/鍍膜/其他服務（小車）', price: null, icon: '' },
+    { name: 'สมาชิกรายเดือน', sub: '包月 ฿299', nameCN: '包月（小車）', price: 299, isMembership: true, icon: '📅' },
     { name: 'ล้างรถสมาชิก', sub: '⚠️ กรุณาตรวจสอบวันหมดอายุ / 請確認包月證日期', nameCN: '包月洗車（小車）', price: 0, isMemberWash: true, icon: '🔍' },
   ],
   large: [
@@ -1004,9 +1003,8 @@ const SERVICES = {
     { name: 'ล้างรถแรงดันน้ำ', sub: '水刀洗車', nameCN: '水刀洗車（大車）', price: 100, icon: '' },
     { name: 'ล้างรถแรงดันน้ำ+ดูดฝุ่น', sub: '水刀+吸塵套餐', nameCN: '水刀洗車+吸塵（大車）', price: 200, icon: '' },
     { name: 'ดูดฝุ่นภายใน', sub: '內部吸塵', nameCN: '內部吸塵（大車）', price: 100, icon: '' },
-    { name: 'เคลือบแว็กซ์/เคลือบแก้ว', sub: '打蠟或鍍膜（現場估價）', nameCN: '打蠟或鍍膜（大車）', price: null, icon: '' },
-    { name: 'สมาชิกรายเดือน', sub: '包月 ฿499', nameCN: '包月（大車）', price: 499, isMembership: true, icon: '📅' },
-    { name: '🔥 สมาชิก 2 เดือน', sub: '八月限時฿599', nameCN: '限時包月兩個月（大車）', price: 599, isMembership: true, icon: '📅📅🔥' },
+    { name: 'เคลือบแว็กซ์/บริการอื่นๆ', sub: '打蠟/鍍膜/其他服務（現場估價）', nameCN: '打蠟/鍍膜/其他服務（大車）', price: null, icon: '' },
+    { name: 'สมาชิกรายเดือน', sub: '包月 ฿399', nameCN: '包月（大車）', price: 399, isMembership: true, icon: '📅' },
     { name: 'ล้างรถสมาชิก', sub: '⚠️ กรุณาตรวจสอบวันหมดอายุ / 請確認包月證日期', nameCN: '包月洗車（大車）', price: 0, isMemberWash: true, icon: '🔍' },
   ],
   moto: [
@@ -1393,7 +1391,8 @@ function addTransaction() {
   document.getElementById('txNote').value = '';
   numpadValue = ''; npRender();
   document.querySelectorAll('.service-btn').forEach(b => b.classList.remove('selected'));
-  // Keep coupon active for next transaction
+  // Reset coupon after each transaction
+  applyCoupon(0);
   // Reset payment selection
   currentPayment = '';
   document.getElementById('payCash').classList.remove('active');
