@@ -827,8 +827,8 @@
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px" id="staffBtns">
         <button class="staff-pick-btn" onclick="pickStaff('WAN')">🧑 WAN</button>
         <button class="staff-pick-btn" onclick="pickStaff('เหว่า')">👱‍♀️ เหว่า</button>
-        <button class="staff-pick-btn" onclick="pickStaff('แคชเชียร์1')">🧑‍💼 แคชเชียร์1</button>
-        <button class="staff-pick-btn" onclick="pickStaff('แคชเชียร์2')">🧑‍💼 แคชเชียร์2</button>
+        <button class="staff-pick-btn" onclick="pickStaff('SAN YEE')">😊 SAN YEE</button>
+        <button class="staff-pick-btn" onclick="pickStaff('CHAN ARR')">😊 CHAN ARR</button>
         <button class="staff-pick-btn" onclick="pickStaff('MANAGER')">👑 MANAGER</button>
       </div>
       <button class="modal-cancel" onclick="closeSetupModal()" style="width:100%">ยกเลิก / 取消</button>
@@ -1434,10 +1434,9 @@ function voidTransaction(id) {
   const tx = txs.find(t => t.id === id);
   if (!tx) return;
 
-  // Find original row number
-  const validTxs = txs.filter(t => t.type === 'income');
-  const txIndex = validTxs.findIndex(t => t.id === id);
-  const rowNum = txIndex >= 0 ? txIndex + 1 : '?';
+  // Use plate number from note if available
+  const plate = tx.note ? tx.note.replace(/\[.*?\]/g, '').trim() : '';
+  const voidNote = plate ? `ยกเลิก / ${plate}` : `ยกเลิก`;
 
   // Add a void record
   const voidTx = {
@@ -1448,7 +1447,7 @@ function voidTransaction(id) {
     amount: -tx.amount,
     qty: tx.qty,
     total: -tx.total,
-    note: `ยกเลิก #${rowNum} / 作廢第${rowNum}筆`,
+    note: voidNote,
     cat: '',
     payment: tx.payment || 'cash',
     author: authorName || '',
